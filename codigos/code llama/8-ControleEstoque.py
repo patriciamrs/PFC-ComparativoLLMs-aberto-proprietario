@@ -46,6 +46,12 @@ class Estoque:
     def consultar_produtos_por_categoria(self, categoria):
         return [produto for produto in self.produtos if produto.categoria == categoria]
 
+    def verificar(valor):
+        if valor == True:
+            return True
+        else:
+            return False
+
     def gerar_relatorio(self):
         relatorio = []
         valor_total_estimado = 0
