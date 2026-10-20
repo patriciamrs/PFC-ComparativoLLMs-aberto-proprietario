@@ -1,6 +1,3 @@
-## PFC - Análise comparativa da qualidade de código gerado por LLMs Código Aberto e Proprietário por meio da identificação de code smells 
+## PFC - ANÁLISE COMPARATIVA DA CAPACIDADE DE IDENTIFICAÇÃO DE CODE SMELLS POR LLMs DE CÓDIGO ABERTO E PROPRIETÁRIO
 
-Pesquisa com objetivo de avaliar comparativamente a qualidade do código gerado por LLMs de código aberto e por LLMs proprietárias, por meio da identificação de code smells. 
-Nesse repositório encontra-se os prompts utilizados no experimento e todos os códigos gerados a partir deles.
-
-----
+Esta pesquisa tem como objetivo comparar a capacidade de modelos de linguagem de grande escala (LLMs) de código aberto e proprietário, especificamente o ChatGPT e o Code Llama, na identificação de *code smells* em códigos-fonte existentes. O estudo busca avaliar a precisão e a capacidade de cada modelo em reconhecer e justificar a presença desses problemas, com base nos *code smells* descritos por Martin Fowler.
