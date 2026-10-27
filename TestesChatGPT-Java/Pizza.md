@@ -1,114 +1,67 @@
+# Análise de Code Smells — Pizza.java
 
-# Análise de Code Smells – Classe Pizza
-
-### 1. Large Class (Classe Grande)
+## 1. Large Class (Classe Grande)
 
 **Localização:** Classe `Pizza`.
 
-**Justificativa:** A classe concentra diversas responsabilidades, incluindo configuração da pizza, gerenciamento de informações de clientes, notificações, descontos, reclamações e pedidos. Essa quantidade de responsabilidades distintas caracteriza uma classe excessivamente abrangente.
+**Justificativa:** A classe apresenta muitas responsabilidades, incluindo configuração de pizzas, armazenamento de informações de clientes, notificações promocionais, aplicação de descontos, tratamento de reclamações e gerenciamento de pedidos. Essa concentração de funcionalidades distintas caracteriza uma classe com responsabilidades excessivas.
 
-### 2. Long Method (Método Longo)
+## 2. Long Method (Método Longo)
 
 **Localização:** Método `longMethod()`.
 
-**Justificativa:** O método reúne diversas operações relacionadas à configuração da pizza, atualização de dados do cliente, notificações, descontos e tratamento de reclamações. A concentração de diferentes tarefas em um único método caracteriza esse code smell.
+**Justificativa:** O método concentra diversas operações de naturezas diferentes, como configuração da pizza, atualização de dados do cliente, notificações, descontos e tratamento de reclamações. Apesar de não ser extremamente extenso em número de linhas, apresenta uma sequência de responsabilidades distintas.
 
-### 3. Long Parameter List (Lista Longa de Parâmetros)
+## 3. Long Parameter List (Lista Longa de Parâmetros)
 
-**Localização:** Métodos `updateCustomerInfo()` e `orderWithUnnecessaryDetails()`.
+**Localização:** Métodos `orderWithUnnecessaryDetails()` e `updateCustomerInfo()`.
 
-**Justificativa:** O método `updateCustomerInfo()` recebe cinco parâmetros relacionados às informações do cliente, enquanto `orderWithUnnecessaryDetails()` recebe seis parâmetros relacionados ao pedido. Essas listas extensas aumentam a complexidade das chamadas e dificultam a compreensão dos métodos.
+**Justificativa:** Os métodos recebem, respectivamente, seis e cinco parâmetros, exigindo o fornecimento de várias informações individuais em uma única chamada. Essa quantidade aumenta a complexidade de utilização e compreensão dos métodos.
 
-### 4. Data Clumps (Agrupamentos de Dados)
+## 4. Data Clumps (Agrupamentos de Dados)
 
-**Localização:** Atributos `customerFirstName`, `customerLastName`, `customerAddress`, `customerPhoneNumber` e `customerEmail`, além dos parâmetros correspondentes do método `updateCustomerInfo()`.
+**Localização:** Atributos `customerFirstName`, `customerLastName`, `customerAddress`, `customerPhoneNumber` e `customerEmail`, além dos métodos `updateCustomerInfo()` e `updateCustomerName()`.
 
-**Justificativa:** Os atributos representam um conjunto de informações relacionadas ao mesmo conceito, os dados cadastrais do cliente. Esses dados aparecem agrupados na classe e na assinatura do método, caracterizando um agrupamento de dados.
+**Justificativa:** Os atributos representam informações relacionadas a uma mesma entidade, o cliente, e aparecem agrupados na classe e em parâmetros de métodos. Essa associação recorrente caracteriza um conjunto de dados que possui significado em comum.
 
-### 5. Primitive Obsession (Obsessão por Tipos Primitivos)
-
-**Localização:** Atributos `size`, `doughType`, `topping` e `extraCheese`, além dos parâmetros utilizados para representar características da pizza.
-
-**Justificativa:** O código utiliza tipos simples, como `String` e `boolean`, para representar características específicas do domínio, como tamanho, tipo de massa, cobertura e queijo extra. Essas informações são manipuladas diretamente por meio de tipos básicos, sem uma representação própria das regras e dos conceitos envolvidos.
-
-### 6. Temporary Field (Campo Temporário)
-
-**Localização:** Atributos `tempDiscountCode` e `tempOrderNote`.
-
-**Justificativa:** Os atributos são declarados na classe `Pizza`, mas não são inicializados explicitamente nem utilizados pelos métodos apresentados. Sua presença sugere campos destinados a situações específicas, sem participação no comportamento habitual da classe. Entretanto, não é possível confirmar pelo código que sejam utilizados temporariamente.
-
-### 7. Duplicate Code (Código Duplicado)
-
-**Localização:** Método `duplicateMethod()`.
-
-**Trecho:**
-```java
-this.setTopping("Cheese");
-this.setTopping("Cheese");
-```
-
-**Justificativa:** O método executa duas vezes consecutivas a mesma chamada, com o mesmo argumento, produzindo uma repetição desnecessária da operação.
-
-### 8. Switch Statements / Repeated Switches (Condicionais por Tipo)
-
-**Localização:** Método `handleComplaint(String complaint)`.
-
-**Justificativa:** O método apresenta uma sequência de condições `if/else if` que verifica diferentes valores textuais de reclamações, como `"cold pizza"`, `"late delivery"` e `"wrong order"`, para determinar o comportamento executado. Essa estrutura apresenta uma seleção baseada em valores específicos. Entretanto, uma única cadeia condicional não é suficiente para confirmar o code smell `Repeated Switches` da segunda edição de Fowler.
-
-### 9. Middle Man (Intermediário)
-
-**Localização:** Método `middleMethod()`.
-
-**Trecho:**
-```java
-public void middleMethod() {
-    System.out.println("Middleman method delegating to another method");
-    this.realMethod();
-}
-```
-
-**Justificativa:** O método atua principalmente como intermediário para a execução de `realMethod()`, acrescentando apenas uma mensagem ao console. Essa delegação apresenta um nível de intermediação com pouca responsabilidade própria, embora não demonstre que a classe inteira funcione predominantemente como intermediária.
-
-### 10. Dead Code (Código Morto)
+## 5. Dead Code (Código Morto)
 
 **Localização:** Métodos `anotherUnusedMethod()`, `yetAnotherUnusedMethod()` e `refusedBequest()`.
 
-**Trecho:**
-```java
-public void anotherUnusedMethod() {
-}
+**Justificativa:** Os métodos possuem corpos vazios e não executam nenhuma operação. Dessa forma, não apresentam comportamento funcional na implementação fornecida.
 
-public void yetAnotherUnusedMethod() {
-}
+## 6. Duplicate Code (Código Duplicado)
 
-public void refusedBequest() {
-}
-```
+**Localização:** Método `duplicateMethod()`.
 
-**Justificativa:** Os três métodos possuem implementações vazias e não são chamados em nenhum trecho apresentado. Não desempenham nenhuma operação e representam código sem funcionalidade observável no contexto analisado.
+**Justificativa:** O método apresenta duas chamadas consecutivas e idênticas a `setTopping("Cheese")`, realizando repetidamente a mesma operação sem necessidade aparente.
 
-### 11. Lazy Class (Classe Preguiçosa)
+## 7. Switch Statements / Repeated Conditional Logic (Lógica Condicional)
+
+**Localização:** Método `handleComplaint()`.
+
+**Justificativa:** O método utiliza uma sequência de condições para determinar o comportamento com base no tipo de reclamação informado. Essa estrutura concentra diferentes comportamentos em uma cadeia de decisões condicionais.
+
+## 8. Feature Envy (Inveja de Funcionalidade)
+
+**Localização:** Métodos `updateCustomerInfo()`, `notifyForPromotion()`, `notifyForDiscount()`, `notifyForNewArrivals()`, `applyDiscount()` e `applyLoyaltyPoints()`.
+
+**Justificativa:** Esses métodos representam operações relacionadas ao gerenciamento de clientes, promoções e benefícios comerciais, em vez de características próprias de uma pizza. Isso indica que a classe `Pizza` concentra comportamentos pertencentes a outros contextos de responsabilidade.
+
+## 9. Middle Man (Intermediário)
+
+**Localização:** Métodos `middlemanMethod()` e `middleMethod()`.
+
+**Justificativa:** Os métodos atuam principalmente como intermediários, encaminhando a execução para outros métodos. Embora apresentem mensagens de saída, sua principal função é delegar chamadas, acrescentando níveis de indireção ao fluxo de execução.
+
+## 10. Lazy Class (Classe Preguiçosa)
 
 **Localização:** Classes `VeggiePizza`, `TunaPizza` e `PepperoniPizza`.
 
-**Justificativa:** Essas subclasses possuem apenas construtores que definem valores específicos para a classe `Pizza`, sem implementar comportamentos adicionais. Sua contribuição limitada pode caracterizar o code smell Lazy Class, embora a existência de tipos distintos de pizza também possa justificar essas subclasses dependendo do restante do sistema.
+**Justificativa:** As subclasses apresentam implementações mínimas, limitadas aos construtores que definem valores específicos. Não possuem comportamentos próprios e dependem integralmente das funcionalidades herdadas de `Pizza`, apresentando pouca responsabilidade individual.
 
----
+## 11. Primitive Obsession (Obsessão por Tipos Primitivos)
 
-## Resumo dos Code Smells Identificados
+**Localização:** Atributos da classe `Pizza`, como `size`, `doughType`, `topping`, `customerAddress`, `customerPhoneNumber` e `customerEmail`.
 
-| Code Smell | Localização |
-|---|---|
-| Large Class | `Pizza` |
-| Long Method | `longMethod()` |
-| Long Parameter List | `updateCustomerInfo()`, `orderWithUnnecessaryDetails()` |
-| Data Clumps | Dados do cliente e `updateCustomerInfo()` |
-| Primitive Obsession | Atributos e parâmetros das características da pizza |
-| Temporary Field | `tempDiscountCode`, `tempOrderNote` |
-| Duplicate Code | `duplicateMethod()` |
-| Switch Statements | `handleComplaint()` |
-| Middle Man | `middleMethod()` |
-| Dead Code | Três métodos vazios |
-| Lazy Class | `VeggiePizza`, `TunaPizza`, `PepperoniPizza` |
-
-**Observação:** Os casos de Temporary Field, Middle Man, Lazy Class e Repeated Switches possuem limitações de evidência, conforme indicado nas justificativas. Portanto, não devem ser tratados como ocorrências definitivamente comprovadas apenas pelo código fornecido. Também não há evidências suficientes para classificar `chainOfMethods()` como Message Chains, `accessInternalDetails()` como Inappropriate Intimacy ou a herança apresentada como Refused Bequest.
+**Justificativa:** O código utiliza diversas variáveis do tipo `String` para representar informações de domínio, como tamanho, tipo de massa, cobertura e dados de contato. Esses valores são tratados como textos simples, sem estruturas específicas que representem seus conceitos e restrições.
