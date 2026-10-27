@@ -9,9 +9,9 @@
 int runs = 10;
 ```
 
-**Justificativa:** O valor `10` é utilizado diretamente para definir a quantidade de execuções do teste, sem uma explicação explícita sobre a escolha desse número. Isso pode dificultar a compreensão da configuração utilizada.
+**Justificativa:** O valor `10` é utilizado diretamente para definir a quantidade de execuções do teste, sem uma explicação explícita sobre a escolha desse número. Isso pode dificultar a compreensão e a manutenção do código.
 
-## 2. Estrutura de Dados Desnecessária (Possível Simplificação)
+## 2. Unnecessary Complexity (Complexidade Desnecessária)
 
 **Localização:** Método `measureExecutionTime()`.
 
@@ -29,14 +29,11 @@ for (Long time : executionTimes) {
 }
 ```
 
-**Justificativa:** O código armazena todos os tempos de execução em uma lista, embora posteriormente utilize esses valores apenas para calcular a soma. Essa estrutura adiciona complexidade ao processamento.
-
-**Observação:** Essa característica não corresponde diretamente a um code smell específico do catálogo de Martin Fowler e, portanto, não deve ser contabilizada como uma ocorrência confirmada.
+**Justificativa:** O código utiliza uma lista para armazenar todos os tempos de execução e posteriormente percorre essa estrutura apenas para calcular a soma. Essa abordagem introduz uma estrutura de dados e um laço adicionais, aumentando desnecessariamente a complexidade do método.
 
 ## Conclusão
 
-O código apresenta uma possível ocorrência de **Magic Number**, embora sua classificação dependa do critério adotado para considerar constantes numéricas como code smells.
+Foram identificados dois possíveis code smells no código analisado:
 
-Não foram identificadas evidências suficientes para classificar o método como **Long Method**, **Duplicated Code**, **Dead Code** ou outros code smells do catálogo de Martin Fowler.
-
-Para uma avaliação restrita aos code smells descritos por Fowler, **não há ocorrências inequívocas identificáveis neste arquivo isoladamente**.
+1. **Magic Number:** utilização de um valor numérico diretamente no código.
+2. **Unnecessary Complexity:** utilização de uma estrutura de dados e de um processamento adicional que não são necessários para o cálculo realizado.
