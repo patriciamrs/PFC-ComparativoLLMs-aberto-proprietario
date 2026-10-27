@@ -1,134 +1,135 @@
-# Análise de Code Smells — Classe Drink
 
-### 1. Data Clumps (Agrupamento de Dados)
+# Análise de Code Smells – Classe Drink (Java)
 
-**Localização:** Classe `Drink`, atributos relacionados às informações do cliente e método `updateCustomerInfo()`.
-
-**Trecho:**
-    private String customerFirstName;
-    private String customerLastName;
-    private String customerAddress;
-    private String customerPhoneNumber;
-    private String customerEmail;
-
-**Justificativa:** Os atributos representam um conjunto de informações relacionadas ao cliente, que também aparecem agrupadas como parâmetros no método `updateCustomerInfo()`. Essa associação caracteriza um agrupamento de dados que poderia constituir uma estrutura própria.
-
-### 2. Long Parameter List (Lista Longa de Parâmetros)
-
-**Localização:** Método `updateCustomerInfo()`.
-
-**Trecho:**
-    public void updateCustomerInfo(String firstName, String lastName,
-        String address, String phoneNumber, String email)
-
-**Justificativa:** O método recebe cinco parâmetros individuais relacionados às informações de um mesmo cliente, caracterizando uma lista extensa de parâmetros.
-
-### 3. Temporary Field (Campo Temporário)
-
-**Localização:** Classe `Drink`, atributos `tempDiscountCode` e `tempOrderNote`.
-
-**Trecho:**
-    private String tempDiscountCode;
-    private String tempOrderNote;
-
-**Justificativa:** Os atributos são declarados, mas não são inicializados explicitamente nem utilizados nos métodos apresentados. Sua presença sugere campos destinados a situações específicas, embora o uso temporário não possa ser confirmado apenas pelo código.
-
-### 4. Large Class (Classe Grande)
+### 1. Large Class (Classe Grande)
 
 **Localização:** Classe `Drink`.
 
-**Justificativa:** A classe concentra diversas responsabilidades, incluindo criação e confirmação de pedidos, atualização de informações de clientes, envio de notificações, aplicação de descontos, gerenciamento de pontos de fidelidade e tratamento de reclamações. Essa concentração de funcionalidades caracteriza uma classe com responsabilidades excessivas.
+**Justificativa:** A classe possui diversos atributos e métodos que representam diferentes responsabilidades, incluindo gerenciamento de bebidas, informações de clientes, notificações promocionais, descontos e reclamações. Essa concentração de responsabilidades caracteriza uma classe excessivamente abrangente.
 
-### 5. Long Method (Método Longo)
+### 2. Long Method (Método Longo)
 
 **Localização:** Método `longMethod()`.
 
-**Trecho:**
-    public void longMethod() {
-        System.out.println("Drink is handling many tasks in a single method");
-        this.createOrder("Cola");
-        this.addToOrder();
-        this.confirmOrder();
-        this.updateCustomerInfo("Jane", "Doe", "456 Avenue", "555-6666", "jane.doe@example.com");
-        this.notifyForPromotion();
-        this.notifyForDiscount();
-        this.notifyForNewArrivals();
-        this.applyDiscount();
-        this.applyLoyaltyPoints();
-        this.handleComplaint("cold drink");
-    }
+```java
+public void longMethod() {
+    System.out.println("Drink is handling many tasks in a single method");
+    this.createOrder("Cola");
+    this.addToOrder();
+    this.confirmOrder();
+    this.updateCustomerInfo("Jane", "Doe", "456 Avenue", "555-6666", "jane.doe@example.com");
+    this.notifyForPromotion();
+    this.notifyForDiscount();
+    this.notifyForNewArrivals();
+    this.applyDiscount();
+    this.applyLoyaltyPoints();
+    this.handleComplaint("cold drink");
+}
+```
 
-**Justificativa:** O método reúne diversas operações de responsabilidades distintas, como criação de pedidos, atualização de clientes, notificações, descontos e reclamações. Embora não seja extremamente longo em quantidade de linhas, apresenta uma sequência extensa de tarefas diferentes.
+**Justificativa:** O método reúne diversas operações relacionadas a pedidos, atualização de clientes, notificações, descontos e reclamações. Embora não seja muito extenso em número de linhas, concentra tarefas distintas em uma única operação.
 
-### 6. Duplicated Code (Código Duplicado)
+### 3. Long Parameter List (Lista Longa de Parâmetros)
 
-**Localização:** Método `duplicateMethod()`.
+**Localização:** Método `updateCustomerInfo()`.
 
-**Trecho:**
-    public void duplicateMethod() {
-        this.createOrder("Cola");
-        this.createOrder("Cola");
-    }
+```java
+public void updateCustomerInfo(String firstName, String lastName, String address, String phoneNumber, String email)
+```
 
-**Justificativa:** A mesma instrução é repetida consecutivamente, sem apresentar diferenças de comportamento ou parâmetros, caracterizando duplicação de código.
+**Justificativa:** O método recebe cinco parâmetros relacionados às informações pessoais do cliente, caracterizando uma lista extensa de argumentos.
 
-### 7. Switch Statements / Repeated Switches (Condicionais Repetitivas)
+### 4. Data Clumps (Agrupamento de Dados)
 
-**Localização:** Método `handleComplaint()`.
+**Localização:** Atributos da classe `Drink` e método `updateCustomerInfo()`.
 
-**Trecho:**
-    if (complaint.equals("cold drink")) {
-        System.out.println("Handling complaint: Drink is cold");
-    } else if (complaint.equals("wrong drink")) {
-        System.out.println("Handling complaint: Wrong drink delivered");
-    } else {
-        System.out.println("Handling complaint: General complaint");
-    }
+```java
+private String customerFirstName;
+private String customerLastName;
+private String customerAddress;
+private String customerPhoneNumber;
+private String customerEmail;
+```
 
-**Justificativa:** O método utiliza uma estrutura condicional para distinguir tipos de reclamações com base em valores textuais. Essa estrutura apresenta uma seleção de comportamentos por tipo, embora não exista evidência de repetição da mesma lógica em outros métodos, requisito importante para caracterizar Repeated Switches na segunda edição de Fowler.
+**Justificativa:** Os atributos representam informações relacionadas a uma mesma entidade, o cliente, e aparecem agrupados tanto na declaração da classe quanto nos parâmetros do método `updateCustomerInfo()`. Isso evidencia um conjunto de dados relacionados que são manipulados em conjunto.
 
-### 8. Middle Man (Intermediário)
+### 5. Divergent Change (Mudança Divergente)
 
-**Localização:** Método `middleMethod()`.
+**Localização:** Classe `Drink`.
 
-**Trecho:**
-    public void middleMethod() {
-        System.out.println("Middleman method delegating to another method");
-        this.realMethod();
-    }
+**Justificativa:** A classe reúne responsabilidades relacionadas ao gerenciamento de bebidas, cadastro de clientes, promoções, descontos e reclamações. Dessa forma, alterações em diferentes funcionalidades do sistema podem exigir modificações na mesma classe por motivos distintos.
 
-**Justificativa:** O método desempenha principalmente o papel de intermediário entre `middlemanMethod()` e `realMethod()`, encaminhando a execução para outro método sem acrescentar lógica de negócio significativa.
+### 6. Temporary Field (Campo Temporário)
 
-### 9. Speculative Generality (Generalidade Especulativa)
+**Localização:** Atributos `tempDiscountCode` e `tempOrderNote`.
+
+```java
+private String tempDiscountCode;
+private String tempOrderNote;
+```
+
+**Justificativa:** Os atributos indicam dados temporários e não são utilizados pelos métodos apresentados. Sua presença sugere campos que não fazem parte do estado regularmente utilizado pela classe. Entretanto, sem evidência de uso apenas em determinadas circunstâncias, a classificação como *Temporary Field* é apenas indicativa.
+
+### 7. Dead Code (Código Morto)
 
 **Localização:** Métodos `anotherUnusedMethod()`, `yetAnotherUnusedMethod()` e `refusedBequest()`.
 
-**Trecho:**
-    public void anotherUnusedMethod() {
-    }
+```java
+public void anotherUnusedMethod() {
+}
 
-    public void yetAnotherUnusedMethod() {
-    }
+public void yetAnotherUnusedMethod() {
+}
 
-    public void refusedBequest() {
-    }
+public void refusedBequest() {
+}
+```
 
-**Justificativa:** Os três métodos possuem implementações vazias e não são chamados por outros métodos no código apresentado. Isso sugere a existência de funcionalidades sem propósito atual demonstrável, compatível com o code smell Speculative Generality.
+**Justificativa:** Os três métodos possuem corpos vazios e não apresentam qualquer comportamento implementado. Além disso, não são chamados em nenhum trecho da classe apresentada.
+
+### 8. Duplicate Code (Código Duplicado)
+
+**Localização:** Método `duplicateMethod()`.
+
+```java
+public void duplicateMethod() {
+    this.createOrder("Cola");
+    this.createOrder("Cola");
+}
+```
+
+**Justificativa:** O método contém duas chamadas consecutivas e idênticas, repetindo a mesma operação com o mesmo argumento.
+
+### 9. Middle Man (Intermediário)
+
+**Localização:** Método `middleMethod()`.
+
+```java
+public void middleMethod() {
+    System.out.println("Middleman method delegating to another method");
+    this.realMethod();
+}
+```
+
+**Justificativa:** O método atua principalmente como intermediário, encaminhando a execução para `realMethod()`, sem acrescentar uma lógica de negócio significativa. Entretanto, a ocorrência é limitada a um método e não demonstra que a classe inteira seja excessivamente delegadora.
+
+### 10. Speculative Generality (Generalidade Especulativa)
+
+**Localização:** Métodos `anotherUnusedMethod()`, `yetAnotherUnusedMethod()` e `refusedBequest()`.
+
+**Justificativa:** Esses métodos estão declarados, mas não possuem implementação nem utilização demonstrada no código. Podem representar estruturas adicionadas para possíveis necessidades futuras, sem funcionalidade atual identificável.
 
 ---
 
-## Resumo dos Code Smells Identificados
+## Observações sobre a classificação
 
-| Code Smell | Localização |
-|---|---|
-| Data Clumps | Atributos do cliente e `updateCustomerInfo()` |
-| Long Parameter List | `updateCustomerInfo()` |
-| Temporary Field | `tempDiscountCode`, `tempOrderNote` |
-| Large Class | Classe `Drink` |
-| Long Method | `longMethod()` |
-| Duplicated Code | `duplicateMethod()` |
-| Switch Statements / Repeated Switches | `handleComplaint()` |
-| Middle Man | `middleMethod()` |
-| Speculative Generality | Três métodos vazios |
+Alguns pontos exigem cuidado para evitar falsos positivos:
 
-**Observação:** Nem todos os nove itens apresentam o mesmo grau de evidência. Temporary Field, Long Method, Repeated Switches e Speculative Generality são classificações possíveis, mas não totalmente confirmadas pelo trecho isolado. Em especial, campos não utilizados não são necessariamente temporários, e uma única sequência `if/else` não comprova Repeated Switches. Também não foram identificadas evidências suficientes para classificar `chainOfMethods()` como Message Chains, `accessInternalDetails()` como Inappropriate Intimacy ou `refusedBequest()` como Refused Bequest.
+- **Message Chains:** O método `chainOfMethods()` realiza apenas uma chamada a outro método da própria classe. Portanto, não caracteriza uma cadeia de mensagens.
+- **Feature Envy:** O método `accessInternalDetails()` acessa um atributo da própria classe, não dados de outra classe. Portanto, não caracteriza esse smell.
+- **Refused Bequest:** Apesar da existência de um método chamado `refusedBequest()`, não há herança no código apresentado. Portanto, esse smell não pode ser confirmado.
+- **Middle Man:** A delegação isolada de `middleMethod()` constitui, no máximo, um indício fraco desse smell.
+- **Dead Code:** Os métodos vazios não possuem comportamento, mas a ausência de chamadas dentro da classe não comprova que métodos públicos nunca sejam utilizados externamente.
+- **Speculative Generality e Temporary Field:** São classificações possíveis, mas dependem de informações adicionais sobre a finalidade dos elementos.
+
+**Conclusão:** As ocorrências mais claramente sustentadas pelo código são *Large Class*, *Long Parameter List*, *Data Clumps*, *Divergent Change* e a concentração de responsabilidades em `longMethod()`. Os demais itens apresentam indícios, mas devem ser avaliados com cautela antes de serem considerados ocorrências confirmadas no conjunto de referência.
