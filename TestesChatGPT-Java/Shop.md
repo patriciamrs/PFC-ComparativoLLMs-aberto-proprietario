@@ -1,104 +1,120 @@
 
-# Análise de Code Smells — Classe Shop
+# Análise de Code Smells — Classe Shop (Java)
 
-### 1. Primitive Obsession (Obsessão por Tipos Primitivos)
+### 1. Large Class (Classe Grande)
 
-**Localização:**
-- Atributo `frequentCustomerDiscount`.
-- Parâmetro `pizzaType` do método `createPizza()`.
-- Parâmetro `complaint` do método `handleComplaint()`.
+- **Localização:** Classe `Shop`.
+- **Justificativa:** A classe concentra diversas responsabilidades, incluindo gerenciamento de pedidos, criação de pizzas, armazenamento de informações de contato, notificações promocionais, aplicação de descontos e tratamento de reclamações. Essa quantidade de responsabilidades caracteriza uma classe com funcionalidades pouco relacionadas entre si.
 
-**Justificativa:**
+### 2. Long Parameter List (Lista Longa de Parâmetros)
 
-O atributo `frequentCustomerDiscount` utiliza um valor booleano para representar uma condição de desconto. Além disso, os métodos `createPizza()` e `handleComplaint()` utilizam strings para representar categorias específicas de pizzas e reclamações, respectivamente. Essas informações são tratadas por meio de tipos primitivos e comparações com valores literais, caracterizando o uso excessivo de tipos primitivos para representar conceitos do domínio.
+- **Localização:** Método `updateContactInfo()`.
+- **Trecho:**
 
-### 2. Data Clumps (Agrupamento de Dados)
+```java
+public void updateContactInfo(String firstName, String lastName, String address, String phoneNumber, String email)
+```
 
-**Localização:**
-- Atributos `firstName`, `lastName`, `address`, `phoneNumber` e `email`.
-- Parâmetros do método `updateContactInfo()`.
+- **Justificativa:** O método recebe cinco parâmetros relacionados às informações de contato. A quantidade de parâmetros aumenta a complexidade da chamada e dificulta a compreensão e manutenção do código.
 
-**Justificativa:**
+### 3. Data Clumps (Agrupamentos de Dados)
 
-Os atributos representam um conjunto de informações relacionadas aos dados pessoais e de contato. Esses mesmos dados aparecem agrupados nos parâmetros do método `updateContactInfo()`, evidenciando a presença de um conjunto de informações que são utilizadas em conjunto.
+- **Localização:** Atributos `firstName`, `lastName`, `address`, `phoneNumber` e `email`, presentes na classe `Shop` e utilizados no método `updateContactInfo()`.
+- **Trecho:**
 
-### 3. Temporary Field (Campo Temporário)
+```java
+private String firstName;
+private String lastName;
+private String address;
+private String phoneNumber;
+private String email;
+```
 
-**Localização:**
-- Atributos `tempDiscountCode` e `tempOrderNote`.
+- **Justificativa:** Os atributos representam informações relacionadas a uma mesma entidade e aparecem agrupados na declaração da classe e nos parâmetros do método `updateContactInfo()`, caracterizando um conjunto de dados utilizados em conjunto.
 
-**Justificativa:**
+### 4. Primitive Obsession (Obsessão por Tipos Primitivos)
 
-Os atributos indicam informações temporárias relacionadas a descontos e observações de pedidos. Entretanto, não são inicializados nem utilizados nos métodos apresentados, permanecendo sem uma função definida no comportamento da classe. Isso sugere a presença de campos que não participam do estado habitual do objeto.
+- **Localização:** Atributos de contato e método `createPizza()`.
+- **Trecho:**
 
-### 4. Long Parameter List (Lista Longa de Parâmetros)
+```java
+private String address;
+private String phoneNumber;
+private String email;
+private String tempDiscountCode;
+```
 
-**Localização:**
-- Método `updateContactInfo(String firstName, String lastName, String address, String phoneNumber, String email)`.
+```java
+public Pizza createPizza(String pizzaType)
+```
 
-**Justificativa:**
-
-O método recebe cinco parâmetros individuais relacionados às informações pessoais e de contato. A quantidade de argumentos aumenta a complexidade da assinatura e caracteriza uma lista extensa de parâmetros.
+- **Justificativa:** O código utiliza repetidamente valores do tipo `String` para representar informações de domínio, como endereço, telefone, e-mail, códigos de desconto e tipos de pizza. Esses conceitos são tratados diretamente como textos, sem uma representação específica de suas características.
 
 ### 5. Switch Statements (Estruturas Condicionais Repetitivas)
 
-**Localização:**
-- Método `createPizza()`.
+- **Localização:** Método `createPizza()`.
+- **Trecho:**
 
-**Justificativa:**
+```java
+if (pizzaType.equals("Cheese")) {
+    return new CheesePizza();
+} else if (pizzaType.equals("Veggie")) {
+    return new VeggiePizza();
+} else if (pizzaType.equals("Tuna")) {
+    return new TunaPizza();
+} else if (pizzaType.equals("Pepperoni")) {
+    return new PepperoniPizza();
+} else {
+    throw new IllegalArgumentException("Unknown pizza type");
+}
+```
 
-O método utiliza uma sequência de condições `if/else if` para verificar o tipo de pizza informado e instanciar uma classe específica. Essa estrutura concentra a seleção de diferentes comportamentos com base em valores literais de uma string, caracterizando uma estrutura condicional de seleção de tipos.
+- **Justificativa:** O método utiliza uma sequência de condicionais para determinar qual classe de pizza deve ser instanciada com base em um valor textual. Essa estrutura concentra a seleção de diferentes tipos de objetos em uma cadeia de verificações condicionais.
 
-### 6. Duplicate Code (Código Duplicado)
+### 6. Duplicated Code (Código Duplicado)
 
-**Localização:**
-- Método `handleComplaint()`.
+- **Localização:** Método `handleComplaint()`.
+- **Trecho:**
 
-**Justificativa:**
+```java
+if (complaint.equals("cold pizza")) {
+    cashier.calmCustomerDown();
+} else if (complaint.equals("late delivery")) {
+    cashier.calmCustomerDown();
+} else if (complaint.equals("wrong order")) {
+    cashier.calmCustomerDown();
+} else {
+    cashier.calmCustomerDown();
+}
+```
 
-Todas as condições do método executam exatamente a mesma instrução, `cashier.calmCustomerDown()`, independentemente do tipo de reclamação recebido. Isso representa uma duplicação explícita de código nos diferentes ramos condicionais.
+- **Justificativa:** Todas as condições executam exatamente a mesma instrução, `cashier.calmCustomerDown()`, independentemente do tipo de reclamação. Isso caracteriza duplicação de código dentro do mesmo método.
 
-### 7. Lazy Element (Elemento Desnecessário)
+### 7. Dead Code (Código Morto)
 
-**Localização:**
-- Método `anotherUnusedMethod()`.
+- **Localização:** Método `anotherUnusedMethod()`.
+- **Trecho:**
 
-**Justificativa:**
+```java
+public void anotherUnusedMethod() {
+}
+```
 
-O método possui implementação vazia e não apresenta nenhuma funcionalidade. Sua existência não acrescenta comportamento à classe, caracterizando um elemento sem responsabilidade efetiva.
+- **Justificativa:** O método possui implementação vazia e não realiza nenhuma operação. Além disso, não há referências à sua utilização no código apresentado, indicando a presença de código sem funcionalidade aparente.
 
-### 8. Large Class (Classe Grande)
+### 8. Temporary Field (Campo Temporário)
 
-**Localização:**
-- Classe `Shop`.
+- **Localização:** Atributos `tempDiscountCode` e `tempOrderNote`.
+- **Trecho:**
 
-**Justificativa:**
+```java
+private String tempDiscountCode;
+private String tempOrderNote;
+```
 
-A classe concentra diferentes responsabilidades, incluindo gerenciamento de pedidos, criação de pizzas, atualização de informações de contato, notificações promocionais, aplicação de benefícios e tratamento de reclamações. Essa variedade de funcionalidades indica uma concentração excessiva de responsabilidades em uma única classe.
+- **Justificativa:** Os atributos representam informações temporárias e não são inicializados nem utilizados pelos métodos apresentados. Sua presença sugere campos associados a situações específicas, sem participação no comportamento normal da classe.
 
 ### 9. Divergent Change (Mudança Divergente)
 
-**Localização:**
-- Classe `Shop`, especialmente nos métodos `receiveOrder()`, `createPizza()`, `updateContactInfo()`, `notifyForPromotion()`, `applyDiscount()` e `handleComplaint()`.
-
-**Justificativa:**
-
-A classe reúne funcionalidades pertencentes a diferentes áreas do sistema. Alterações nas regras de criação de pizzas, dados de contato, promoções ou reclamações podem exigir modificações na mesma classe por motivos distintos, indicando diferentes razões para mudança.
-
----
-
-## Resumo dos Code Smells Identificados
-
-| Code Smell | Localização |
-|---|---|
-| Primitive Obsession | `frequentCustomerDiscount`, `createPizza()`, `handleComplaint()` |
-| Data Clumps | Atributos de contato e `updateContactInfo()` |
-| Temporary Field | `tempDiscountCode`, `tempOrderNote` |
-| Long Parameter List | `updateContactInfo()` |
-| Switch Statements | `createPizza()` |
-| Duplicate Code | `handleComplaint()` |
-| Lazy Element | `anotherUnusedMethod()` |
-| Large Class | `Shop` |
-| Divergent Change | `Shop` |
-
-**Observação:** Algumas classificações exigem cautela. Em particular, `Temporary Field` não fica plenamente comprovado apenas pela existência de atributos não utilizados; `Lazy Element` não comprova que o método esteja sem uso externo; e `Divergent Change` representa um indício estrutural, pois não há histórico de alterações disponível. Da mesma forma, um booleano isolado não é suficiente, por si só, para caracterizar `Primitive Obsession`. Essas distinções são importantes para evitar falsos positivos na identificação dos code smells.
+- **Localização:** Classe `Shop`.
+- **Justificativa:** A classe reúne funcionalidades de diferentes áreas, como criação de pizzas (`createPizza()`), gerenciamento de pedidos (`receiveOrder()`), informações de contato (`updateContactInfo()`), promoções (`notifyForPromotion()`) e reclamações (`handleComplaint()`). Dessa forma, alterações em responsabilidades distintas podem exigir modificações na mesma classe.
