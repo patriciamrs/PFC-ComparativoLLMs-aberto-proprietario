@@ -1,21 +1,17 @@
 
-## Análise de Code Smells – Classe `Drink`
+# Análise de Code Smells — Classe `Drink`
 
-Após a análise do código-fonte, **não foram identificados code smells evidentes** entre os descritos por Martin Fowler no livro *Refatoração: Aperfeiçoando o Design de Códigos Existentes*.
+Após analisar o código apresentado, **não foram identificados code smells evidentes**.
 
-### Justificativa
+A classe `Drink` possui uma estrutura simples, com um atributo (`drink_type`) e três métodos responsáveis por operações relacionadas ao pedido de uma bebida.
 
-A classe `Drink` apresenta uma estrutura simples, com métodos curtos e responsabilidades relacionadas ao gerenciamento de um pedido de bebida.
+## Possível Code Smell: Lazy Class
 
-- **Método `__init__`:** inicializa o atributo `drink_type`, utilizado posteriormente pelos demais métodos.
-- **Método `create_order`:** define o tipo de bebida e exibe uma mensagem de criação do pedido.
-- **Método `add_to_order`:** apresenta uma mensagem relacionada à adição da bebida ao pedido.
-- **Método `confirm_order`:** apresenta uma mensagem de confirmação do pedido.
+- **Localização:** Classe `Drink`.
+- **Justificativa:** A classe possui poucos métodos e apresenta comportamento limitado, pois `create_order()`, `add_to_order()` e `confirm_order()` realizam principalmente mensagens por meio de `print()`, sem implementar uma lógica de negócio significativa. Isso pode indicar uma classe cuja existência não se justifica pela quantidade de responsabilidades que desempenha.
 
-Embora os métodos utilizem instruções `print()` semelhantes, isso não caracteriza necessariamente o code smell *Duplicated Code*, pois cada mensagem representa uma operação diferente.
+**Observação:** O *Lazy Class* é apenas uma possibilidade, pois uma classe pequena não caracteriza necessariamente esse code smell. Seria necessário analisar seu papel no restante do sistema para confirmar a ocorrência.
 
-### Conclusão
+## Conclusão
 
-**Total de code smells identificados: 0.**
-
-Não há evidências suficientes para classificar os elementos apresentados como ocorrências dos code smells descritos por Martin Fowler.
+Considerando exclusivamente o código fornecido e o critério de identificar apenas problemas efetivamente presentes, **não é possível confirmar a existência de code smells nessa classe**.
