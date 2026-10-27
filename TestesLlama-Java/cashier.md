@@ -1,57 +1,49 @@
-Vou analisar o código fornecido para identificar os code smells descritos no livro "Refatoração: Aperfeiçoando o Design de Códigos Existentes" de Martin Fowler.
+# Análise de Code Smells — Classe `Cashier`
 
-Primeiro, vou buscar informações sobre os principais code smells mencionados no livro para entender melhor como identificá-los no código apresentado.
+Segue o levantamento dos code smells presentes no código, descritos em texto corrido.
 
-Vou analisar o código fornecido em busca dos principais code smells descritos por Martin Fowler. Vamos examinar cada método e estrutura para identificar os problemas específicos.
+---
 
-Vou agora analisar cuidadosamente o código fornecido para identificar os code smells presentes, com base nas descrições de Martin Fowler.
+**Large Class (Classe Grande).** Ocorre na classe `Cashier` como um todo. A classe acumula responsabilidades muito distintas e pouco relacionadas entre si: o atendimento ao cliente (em métodos como `takeOrder` e `deliverPizzaToCustomer`), a comunicação de promoções e avisos (`notifyForPromotion`, `notifyForDiscount`, `notifyForNewArrivals`), o armazenamento dos dados cadastrais do cliente (`firstName`, `lastName`, `address`, `phoneNumber`, `email`, além de todos os `update*`) e também o tratamento de reclamações. Essa concentração de papéis num único ponto evidencia uma classe grande demais e com baixa coesão.
 
-Vou analisar o código fornecido diretamente para identificar os code smells descritos por Martin Fowler.
+**Feature Envy (Inveja de Funcionalidade).** Ocorre nos métodos `takeOrder`, `hurryUpChef`, `calmCustomerDown` e `chainOfMethods`. Nesses métodos, o Cashier apenas imprime uma mensagem sobre sua própria ação, mas a lógica real é sempre delegada ao objeto `chef` (por meio de `this.chef.bakePizza(...)`, `this.chef.hurryUp()` e `this.chef.cleanKitchen()`). Ou seja, a classe demonstra interesse desproporcional no comportamento e nos dados de `Chef`, "invejando" uma funcionalidade que não é dela.
 
-Analisando o código da classe `Cashier`, posso identificar os seguintes code smells:
+**Inappropriate Intimacy (Intimidade Inadequada).** Ocorre na relação entre `Cashier` e `Chef`, especialmente em `chainOfMethods` e em `accessInternalDetails`. Existe um forte acoplamento entre as duas classes, já que `Cashier` aciona diretamente métodos internos de `Chef` (`bakePizza`, `hurryUp`, `cleanKitchen`, `isBusy`), criando dependência excessiva sobre os detalhes internos de outra classe. O método `accessInternalDetails`, em particular, chega a acessar e imprimir o estado interno de `Chef` via `chef.isBusy()`.
 
-## 1. Long Method (Método Longo)
-**Trecho:** Método `longMethod()`
-**Justificativa:** O método `longMethod()` realiza várias tarefas diferentes em uma única rotina, incluindo tomar pedido, acelerar o chef, calmar o cliente, entregar a pizza e pedir recibo. Isso viola o princípio de que um método deve ter uma única responsabilidade. Esse é um claro exemplo de "Long Method" conforme descrito por Fowler, pois o método faz muitas coisas diferentes e dificulta a compreensão e manutenção.
+**Divergent Change (Mudança Divergente).** Ocorre na estrutura geral da classe. Há vários motivos independentes que poderiam forçar alterações na mesma classe: mudanças no cadastro do cliente, mudanças no fluxo de notificações e promoções, mudanças na interação com o Chef e mudanças no tratamento de reclamações. Qualquer alteração em um desses eixos obriga a modificar `Cashier`, caracterizando múltiplas razões de mudança concentradas numa única classe.
 
-## 2. Duplicated Code (Código Duplicado)
-**Trecho:** Métodos `duplicateMethod()` e `takeOrder()`
-**Justificativa:** O método `duplicateMethod()` chama duas vezes seguidas `takeOrder("Cheese")`. Embora seja uma duplicação simples, ainda assim representa um code smell porque há código repetido sem necessidade, o que pode levar a inconsistências se uma das chamadas precisar ser modificada.
+**Long Method (Método Longo).** Ocorre no método `longMethod()`. Ele executa, num único bloco sequencial, diversas tarefas distintas — chama `takeOrder("Cheese")`, `hurryUpChef()`, `calmCustomerDown()`, `deliverPizzaToCustomer()` e `askForReceipt()` — o que torna o método longo e responsável por muitos passos de uma só vez.
 
-## 3. Feature Envy (Inveja de Recursos)
-**Trecho:** Método `handleComplaint()`
-**Justificativa:** O método `handleComplaint()` faz uso intensivo de métodos do objeto `chef` (como `calmCustomerDown()`), mas não tem acesso direto aos dados do próprio objeto `Cashier`. Isso indica que o método está mais interessado nos dados e métodos de outra classe (Chef) do que nos seus próprios dados, o que é característico do "Feature Envy".
+**Duplicated Code (Código Duplicado).** Ocorre no método `duplicateMethod()`, que chama `this.takeOrder("Cheese")` duas vezes seguidas com o mesmo argumento, repetindo literalmente a mesma instrução.
 
-## 4. Large Class (Classe Grande)
-**Trecho:** Classe `Cashier` inteira
-**Justificativa:** A classe `Cashier` possui muitos métodos e campos que realizam diferentes funções, como gerenciamento de pedidos, comunicação com o chef, atualização de informações de contato e tratamento de reclamações. Isso indica que a classe está fazendo muito mais do que deveria, o que é característico de "Large Class".
+**Duplicated Code (duplicação nos ramos de decisão).** Ocorre no método `handleComplaint(String complaint)`. Todos os ramos do encadeamento `if / else if / else` executam exatamente a mesma chamada `this.calmCustomerDown()`, independentemente do valor recebido em `complaint`. O comportamento é duplicado em todos os ramos, tornando a distinção entre eles inútil.
 
-## 5. Middle Man (Intermediário)
-**Trecho:** Métodos `middlemanMethod()`, `middleMethod()` e `realMethod()`
-**Justificativa:** O método `middlemanMethod()` simplesmente chama `middleMethod()`, que por sua vez chama `realMethod()`. Não há nenhuma lógica adicional ou valor agregado neste encadeamento de métodos, o que é típico de "Middle Man" - uma classe que delega a maioria de suas responsabilidades para outra classe sem acrescentar valor.
+**Message Chain (Cadeia de Mensagens).** Ocorre no método `chainOfMethods()`. O próprio código indica que está "iniciando uma cadeia de mensagens", acessando o objeto `chef` para acionar diretamente seu comportamento (`this.chef.cleanKitchen()`), o que caracteriza a navegação por mensagens encadeadas entre objetos.
 
-## 6. Data Class (Classe de Dados)
-**Trecho:** Classe `Cashier` inteira
-**Justificativa:** A classe `Cashier` é basicamente uma coleção de campos (nome, endereço, telefone, email) e métodos getter/setter, sem comportamentos significativos. Ela apenas armazena dados e oferece métodos básicos para atualizar esses dados, o que é típico de "Data Class".
+**Middle Man (Homem do Meio).** Ocorre nos métodos `middlemanMethod()` e `middleMethod()`. O `middlemanMethod()` apenas chama `middleMethod()`, que por sua vez apenas chama `realMethod()`. Nenhum dos dois intermediários acrescenta lógica real própria, atuando somente como camadas de delegação sem valor.
 
-## 7. Refused Bequest (Herança Recusada)
-**Trecho:** Método `refusedBequest()`
-**Justificativa:** O método `refusedBequest()` está presente na classe mas não faz nada. Isso sugere que a classe herda métodos de uma superclasse que não são necessários ou utilizados, indicando um "Refused Bequest" - quando uma subclasse recebe métodos que não usa ou não precisa.
+**Dead Code / Métodos Vazios.** Ocorre em `anotherUnusedMethod()` e `refusedBequest()`. Ambos são métodos totalmente vazios, sem corpo e sem uso aparente, não executando nenhuma ação.
 
-## 8. Message Chains (Cadeias de Mensagens)
-**Trecho:** Método `accessInternalDetails()`
-**Justificativa:** O método `accessInternalDetails()` acessa diretamente o método `isBusy()` do objeto `chef`, indicando que a classe `Cashier` está tentando acessar detalhes internos de outra classe. Isso cria uma cadeia de mensagens e viola o encapsulamento, o que é característico de "Message Chains".
+**Getter não utilizado.** Ocorre em `getChef()`. O método expõe o objeto `chef` sem uso interno evidente, contribuindo para a exposição desnecessária do estado interno da classe.
 
-## 9. Long Parameter List (Lista de Parâmetros Longa)
-**Trecho:** Métodos `updateContactInfo()`, `updateName()`, `updateAddress()`, `updatePhoneNumber()` e `updateEmail()`
-**Justificativa:** Os métodos `updateContactInfo()` e `updateName()` possuem múltiplos parâmetros que podem ser agrupados em objetos, o que viola o princípio de ter listas de parâmetros curtas. O método `updateContactInfo()` tem 5 parâmetros, o que já é considerado longo.
+**Data Class (Classe de Dados) — tendência nos atributos do cliente.** Ocorre no conjunto de atributos `firstName`, `lastName`, `address`, `phoneNumber` e `email`, juntamente com os métodos de atualização (`updateName`, `updateAddress`, `updatePhoneNumber`, `updateEmail` e `updateContactInfo`). Esses campos existem quase exclusivamente para armazenar e atualizar dados do cliente, comportamento típico de uma classe de dados embutida.
 
-## 10. Divergent Change (Mudança Divergente)
-**Trecho:** Métodos de notificação (`notifyForPromotion()`, `notifyForDiscount()`, `notifyForNewArrivals()`) e métodos de atualização de dados
-**Justificativa:** A classe `Cashier` está sendo modificada por diferentes razões: atualização de informações de contato, notificações ao cliente, tratamento de reclamações, entre outras. Isso indica que a classe tem múltiplas razões para mudar, o que é característico de "Divergent Change".
+**Long Parameter List (Lista de Parâmetros Longa).** Ocorre no método `updateContactInfo(String firstName, String lastName, String address, String phoneNumber, String email)`. O método recebe cinco parâmetros diretamente, o que dificulta a leitura, a chamada e a manutenção do método.
 
-## 11. Shotgun Surgery (Cirurgia de Escopeta)
-**Trecho:** Métodos de tratamento de reclamações (`handleComplaint()`)
-**Justificativa:** Se fosse necessário modificar o comportamento de tratamento de reclamações, seria necessário alterar o método `handleComplaint()` que está dentro da classe `Cashier`. Isso pode exigir alterações em múltiplas partes da classe se o comportamento mudar, o que é típico de "Shotgun Surgery".
+**Speculative Generality / Atributos não utilizados.** Ocorre nos atributos `tempDiscountCode` e `tempOrderNote`, que são declarados mas nunca lidos nem escritos em nenhum método da classe. São campos "temporários" criados para necessidades que não existem no código atual.
 
-Esses code smells tornam o código difícil de manter, entender e extender, conforme os princípios descritos por Martin Fowler.
+**Atributo não utilizado.** Ocorre no campo `frequentCustomerDiscount`. Ele é inicializado no construtor com `false`, mas nunca é consultado nem alterado em qualquer método, indicando um dado sem utilidade efetiva.
+
+**Comportamento enganoso (lógica que não corresponde ao nome).** Ocorre nos métodos `applyDiscount()` e `applyLoyaltyPoints()`. Ambos executam apenas um `System.out.println`, sem implementar de fato o que seus nomes prometem, configurando comportamento enganoso em relação à intenção declarada.
+
+---
+
+### Observação complementar
+
+O método `refusedBequest()` tem esse nome remetendo ao smell **Refused Bequest (Herança Recusada)**, porém, no código apresentado, `Cashier` não herda de nenhuma classe, portanto o smell de herança propriamente dito não se configura — o que existe ali é um método vazio sem uso. Registro isso para não atribuir o smell de herança indevidamente.
+
+### Resumo dos smells identificados
+
+Large Class (`Cashier`); Feature Envy (`takeOrder`, `hurryUpChef`, `calmCustomerDown`, `chainOfMethods`); Inappropriate Intimacy (`Cashier` ↔ `Chef`, `accessInternalDetails`, `chainOfMethods`); Divergent Change (estrutura geral); Long Method (`longMethod()`); Duplicated Code (`duplicateMethod()` e ramos redundantes de `handleComplaint()`); Message Chain (`chainOfMethods()`); Middle Man (`middlemanMethod()` / `middleMethod()`); Dead Code / métodos vazios (`anotherUnusedMethod()`, `refusedBequest()`); getter não utilizado (`getChef()`); Data Class (atributos do cliente); Long Parameter List (`updateContactInfo(...)`); atributos não utilizados (`tempDiscountCode`, `tempOrderNote`, `frequentCustomerDiscount`); e comportamento enganoso (`applyDiscount()`, `applyLoyaltyPoints()`).
+
+Conforme solicitado, nenhuma refatoração ou alteração de implementação foi proposta — apenas a identificação e a justificativa dos code smells presentes.

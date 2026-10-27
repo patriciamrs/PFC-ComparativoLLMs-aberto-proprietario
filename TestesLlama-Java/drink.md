@@ -1,63 +1,274 @@
-Vou analisar o código fornecido para identificar os code smells descritos no livro "Refatoração: Aperfeiçoando o Design de Códigos Existentes" de Martin Fowler.
+# Análise de Code Smells — Classe `Drink`
 
-Primeiro, vou examinar cuidadosamente a classe `Drink` e seus métodos para identificar padrões problemáticos.
+Abaixo estão os code smells presentes no código. Cada item apresenta a classe/método afetado, o trecho relevante e a justificativa.
 
-Vou analisar o código fornecido em busca dos code smells descritos no livro "Refatoração: Aperfeiçoando o Design de Códigos Existentes" de Martin Fowler.
+---
 
-Vamos examinar o código da classe `Drink` para identificar os code smells presentes:
+## 1. God Class (Blob / Classe Deus)
 
-Vou agora analisar cuidadosamente o código fornecido para identificar os code smells específicos:
+**Onde:** Classe `Drink` inteira.
 
-Vou analisar o código da classe `Drink` para identificar os code smells presentes:
+**Trecho:**
+```java
+public class Drink {
+    private String drinkType;
+    private boolean isLargeSize;
+    private String customerFirstName;
+    private String customerLastName;
+    private String customerAddress;
+    private String customerPhoneNumber;
+    private String customerEmail;
+    private String tempDiscountCode;
+    private String tempOrderNote;
+    ...
+}
+```
 
-Vou agora fazer uma análise detalhada do código da classe `Drink` para identificar os code smells presentes:
+**Justificativa:** A classe `Drink`, que deveria representar apenas uma bebida, acumula responsabilidades de várias naturezas: gestão de pedido (`createOrder`, `addToOrder`, `confirmOrder`), dados cadastrais do cliente (nome, endereço, telefone, e-mail), notificações/promoções, programa de fidelidade, tratamento de reclamações e atendimento ao cliente. Essa concentração excessiva de responsabilidades e de atributos não coesos é característica de uma God Class.
 
-Vou analisar diretamente o código da classe `Drink` para identificar os code smells presentes:
+---
 
-Vou analisar cuidadosamente o código da classe `Drink` para identificar os code smells presentes:
+## 2. Lazy Class (Classe Preguiçosa)
 
-Após uma análise cuidadosa do código da classe `Drink`, identifiquei os seguintes code smells presentes:
+**Onde:** Classe `Drink` e seus métodos vazios `anotherUnusedMethod()` e `yetAnotherUnusedMethod()`.
 
-## Code Smells Identificados
+**Trecho:**
+```java
+public void anotherUnusedMethod() {
+}
 
-### 1. Large Class (Classe Grande)
-- **Método/Classe afetada**: Classe `Drink`
-- **Justificativa**: A classe possui múltiplos responsabilidades que vão além do escopo de um único objeto. Ela contém métodos relacionados a criação de pedidos, atualização de informações do cliente, notificações promocionais, aplicação de descontos, tratamento de reclamações, além de métodos de manipulação de dados do cliente. Além disso, possui 13 campos (atributos) que são utilizados por diferentes métodos, indicando falta de coesão.
+public void yetAnotherUnusedMethod() {
+}
+```
 
-### 2. Long Method (Método Longo)
-- **Método afetado**: `longMethod()`
-- **Justificativa**: Este método executa várias operações diferentes em sequência, incluindo criação de pedido, confirmação, atualização de informações do cliente, notificações, aplicação de descontos, tratamento de reclamações, entre outros. É um método com múltiplas responsabilidades e excede o tamanho recomendado para manutenção e compreensão.
+**Justificativa:** Há métodos que não executam nenhuma ação e não agregam valor à classe, indicando elementos "preguiçosos" que não justificam sua existência. A presença de atributos como `tempDiscountCode` e `tempOrderNote`, declarados mas nunca utilizados, também reforça essa característica.
 
-### 3. Data Class (Classe de Dados)
-- **Método/Classe afetada**: Classe `Drink`
-- **Justificativa**: A classe possui apenas campos públicos (ou acessíveis) e métodos básicos de acesso (getters/setters), mas não possui comportamentos significativos. A maioria dos métodos se limita a manipular dados do cliente ou realizar ações de notificação, sem comportamentos complexos ou lógica de negócio.
+---
 
-### 4. Duplicated Code (Código Duplicado)
-- **Método afetado**: `duplicateMethod()`
-- **Justificativa**: O método chama duas vezes o mesmo método `createOrder("Cola")`, demonstrando duplicação de código. Isso é um exemplo claro de código repetido que poderia ser evitado.
+## 3. Long Method (Método Longo)
 
-### 5. Feature Envy (Inveja de Recursos)
-- **Método afetado**: `chainOfMethods()` e `middlemanMethod()`/`middleMethod()`/`realMethod()`
-- **Justificativa**: O método `chainOfMethods()` acessa diretamente o método `updateCustomerAddress()` que pertence à própria classe, mas o uso é inadequado, sugerindo que talvez esse método deveria estar em outro lugar. O padrão de chamada em cadeia (`middlemanMethod` -> `middleMethod` -> `realMethod`) indica que há métodos intermediários que apenas delegam chamadas, o que pode ser um sinal de que o comportamento deveria estar em outro lugar.
+**Onde:** Método `longMethod()`.
 
-### 6. Middle Man (Intermediário)
-- **Métodos afetados**: `middlemanMethod()`, `middleMethod()`, `realMethod()`
-- **Justificativa**: Os métodos `middlemanMethod()` e `middleMethod()` servem apenas como intermediários que delegam chamadas a outros métodos, sem adicionar valor real. Esses métodos são desnecessários e indicam um design ruim onde há excesso de delegação.
+**Trecho:**
+```java
+public void longMethod() {
+    System.out.println("Drink is handling many tasks in a single method");
+    this.createOrder("Cola");
+    this.addToOrder();
+    this.confirmOrder();
+    this.updateCustomerInfo("Jane", "Doe", "456 Avenue", "555-6666", "jane.doe@example.com");
+    this.notifyForPromotion();
+    this.notifyForDiscount();
+    this.notifyForNewArrivals();
+    this.applyDiscount();
+    this.applyLoyaltyPoints();
+    this.handleComplaint("cold drink");
+}
+```
 
-### 7. Refused Bequest (Rejeição de Herança)
-- **Método afetado**: `refusedBequest()`
-- **Justificativa**: O método está vazio e não faz nada, sugerindo que a classe herda métodos que não são realmente necessários ou utilizados, o que é típico de uma rejeição de herança.
+**Justificativa:** O método executa uma sequência extensa de tarefas distintas em um único bloco, misturando criação de pedido, atualização de dados, notificações, descontos e reclamações. A quantidade de operações e responsabilidades acumuladas torna o método longo e difícil de manter.
 
-### 8. Long Parameter List (Lista de Parâmetros Longa)
-- **Método afetado**: `updateCustomerInfo()`
-- **Justificativa**: O método recebe 5 parâmetros diferentes (firstName, lastName, address, phoneNumber, email), o que é considerado uma lista de parâmetros longa e pode dificultar a manutenção e uso.
+---
 
-### 9. Lazy Element (Elemento Preguiçoso)
-- **Métodos afetados**: `anotherUnusedMethod()`, `yetAnotherUnusedMethod()`
-- **Justificativa**: Estes métodos estão completamente vazios e não possuem funcionalidade alguma, indicando um elemento que existe sem propósito.
+## 4. Duplicated Code (Código Duplicado)
 
-### 10. Message Chain (Cadeia de Mensagens)
-- **Método afetado**: `chainOfMethods()`
-- **Justificativa**: O método acessa diretamente `updateCustomerAddress("456 Avenue")`, o que pode ser visto como uma cadeia de mensagens, embora neste caso seja simples. No entanto, a presença de métodos intermediários (`middlemanMethod` -> `middleMethod` -> `realMethod`) também contribui para essa estrutura.
+**Onde:** Método `duplicateMethod()`.
 
-Esses code smells indicam problemas de design que tornam o código difícil de manter, entender e modificar. A classe `Drink` viola o princípio da responsabilidade única e apresenta diversos sinais de má organização e falta de encapsulamento.
+**Trecho:**
+```java
+public void duplicateMethod() {
+    this.createOrder("Cola");
+    this.createOrder("Cola");
+}
+```
+
+**Justificativa:** Há chamadas idênticas e repetidas (`createOrder("Cola")`) dentro do mesmo método, caracterizando duplicação de código.
+
+---
+
+## 5. Divergent Change / Shotgun Surgery (relacionado a mudanças)
+
+**Onde:** Métodos `updateCustomerInfo`, `updateCustomerName`, `updateCustomerAddress`, `updateCustomerPhoneNumber`, `updateCustomerEmail`.
+
+**Trecho:**
+```java
+public void updateCustomerInfo(String firstName, String lastName, String address, String phoneNumber, String email) { ... }
+public void updateCustomerName(String firstName, String lastName) { ... }
+public void updateCustomerAddress(String address) { ... }
+public void updateCustomerPhoneNumber(String phoneNumber) { ... }
+public void updateCustomerEmail(String email) { ... }
+```
+
+**Justificativa:** A lógica de atualização dos dados do cliente está espalhada por vários métodos que escrevem nos mesmos atributos, de modo que uma alteração na forma de tratar os dados do cliente exigiria modificar múltiplos pontos. Esse espalhamento de uma mesma responsabilidade por diversos métodos caracteriza sintomas como Divergent Change / Shotgun Surgery.
+
+---
+
+## 6. Middle Man (Homem do Meio)
+
+**Onde:** Métodos `middlemanMethod()` e `middleMethod()`.
+
+**Trecho:**
+```java
+public void middlemanMethod() {
+    System.out.println("Drink is calling a middleman method");
+    this.middleMethod();
+}
+
+public void middleMethod() {
+    System.out.println("Middleman method delegating to another method");
+    this.realMethod();
+}
+```
+
+**Justificativa:** Esses métodos apenas delegam a chamada para outros métodos, sem adicionar comportamento relevante. `middleMethod()` repassa a execução para `realMethod()`, e `middlemanMethod()` repassa para `middleMethod()`, configurando uma cadeia de intermediários.
+
+---
+
+## 7. Message Chains (Cadeia de Mensagens) / Chain of Methods
+
+**Onde:** Método `chainOfMethods()`.
+
+**Trecho:**
+```java
+public void chainOfMethods() {
+    System.out.println("Drink is initiating a message chain");
+    this.updateCustomerAddress("456 Avenue");
+}
+```
+
+**Justificativa:** O nome e a estrutura do método indicam um encadeamento de chamadas (mensagens) disparado pela classe, em que uma operação presume navegação/sequência de acessos entre objetos, típico de Message Chain em que o cliente é fortemente acoplado à estrutura interna de colaboradores.
+
+---
+
+## 8. Feature Envy (Inveja de Funcionalidade)
+
+**Onde:** Métodos `notifyForPromotion`, `notifyForDiscount`, `notifyForNewArrivals`, `applyDiscount`, `applyLoyaltyPoints`, `handleComplaint`, `askForReceipt` (comportamentos ligados ao cliente).
+
+**Trecho:**
+```java
+public void notifyForPromotion() { System.out.println("Notifying customer for promotion"); }
+public void notifyForDiscount() { System.out.println("Notifying customer for discount"); }
+public void applyDiscount() { System.out.println("Applying discount for customer"); }
+public void applyLoyaltyPoints() { System.out.println("Applying loyalty points for customer"); }
+public void handleComplaint(String complaint) { ... }
+public void askForReceipt() { System.out.println("Customer is asking for a receipt."); }
+```
+
+**Justificativa:** Métodos que tratam explicitamente de notificações, promoções, fidelidade, reclamações e atendimento referem-se a responsabilidades do cliente, e não da bebida. Essa apropriação de comportamento pertencente a outra abstração (o cliente) configura Feature Envy.
+
+---
+
+## 9. Inappropriate Intimacy (Intimidade Inapropriada)
+
+**Onde:** Método `accessInternalDetails()`.
+
+**Trecho:**
+```java
+public void accessInternalDetails() {
+    System.out.println("Accessing internal details: " + this.drinkType);
+}
+```
+
+**Justificativa:** O método expõe/depende diretamente do detalhe interno `drinkType`, realizando acesso a informação que deveria ser encapsulada, configurando um caso de intimidade inapropriada com os próprios detalhes internos.
+
+---
+
+## 10. Refused Bequest (Herança Recusada) — sintoma de classe base inadequada
+
+**Onde:** Método `refusedBequest()`.
+
+**Trecho:**
+```java
+public void refusedBequest() {
+}
+```
+
+**Justificativa:** A presença de um método explicitamente vazio chamado `refusedBequest` representa o sintoma de uma subclasse que herda comportamento/membros que não utiliza ou rejeita — a herança recusada. O método vazio evidencia que o elemento herdado (ou previsto) não é aproveitado pela classe.
+
+---
+
+## 11. Dead Code (Código Morto)
+
+**Onde:** Métodos `anotherUnusedMethod()` e `yetAnotherUnusedMethod()`; atributos `tempDiscountCode` e `tempOrderNote`.
+
+**Trecho:**
+```java
+private String tempDiscountCode;
+private String tempOrderNote;
+...
+public void anotherUnusedMethod() { }
+public void yetAnotherUnusedMethod() { }
+```
+
+**Justificativa:** Há membros declarados que nunca são utilizados em nenhum ponto do código — métodos vazios e nunca invocados, além de atributos `temp*` nunca lidos nem escritos. Esses elementos configuram código morto.
+
+---
+
+## 12. Comments/Variáveis com nomes temporárias e não significativas (sugestivo de smell)
+
+**Onde:** Atributos `tempDiscountCode`, `tempOrderNote`.
+
+**Trecho:**
+```java
+private String tempDiscountCode;
+private String tempOrderNote;
+```
+
+**Justificativa:** O prefixo "temp" e o fato de serem atributos não utilizados indicam declarações provisórias/esquecidas, um sintoma de má organização da classe que se conecta ao Dead Code e à Lazy Class.
+
+---
+
+## 13. Switch/If-Else condicional complexa (Conditional Complexity)
+
+**Onde:** Método `handleComplaint(String complaint)`.
+
+**Trecho:**
+```java
+public void handleComplaint(String complaint) {
+    if (complaint.equals("cold drink")) {
+        System.out.println("Handling complaint: Drink is cold");
+    } else if (complaint.equals("wrong drink")) {
+        System.out.println("Handling complaint: Wrong drink delivered");
+    } else {
+        System.out.println("Handling complaint: General complaint");
+    }
+}
+```
+
+**Justificativa:** A lógica de tratamento de reclamações é implementada por meio de encadeamento de condicionais `if/else if`, concentrando a decisão sobre múltiplos tipos de caso dentro da classe `Drink`. Essa estrutura condicional extensa é um code smell típico, especialmente quando a lógica pertence a outra abstração.
+
+---
+
+## 14. Temporary Field (Campo Temporário)
+
+**Onde:** Atributos `tempDiscountCode` e `tempOrderNote`.
+
+**Trecho:**
+```java
+private String tempDiscountCode;
+private String tempOrderNote;
+```
+
+**Justificativa:** Esses atributos têm nomes que remetem a valores temporários e não participam de nenhum fluxo real da classe. Declarar campos que só seriam usados em situações específicas (ou que nunca são usados) é o sintoma de Temporary Field, contribuindo para a baixa coesão da classe.
+
+---
+
+### Resumo dos smells identificados
+
+| # | Code Smell | Onde |
+|---|-----------|------|
+| 1 | God Class / Blob | Classe `Drink` |
+| 2 | Lazy Class | Classe `Drink`, métodos vazios |
+| 3 | Long Method | `longMethod()` |
+| 4 | Duplicated Code | `duplicateMethod()` |
+| 5 | Divergent Change / Shotgun Surgery | métodos `updateCustomer*` |
+| 6 | Middle Man | `middlemanMethod()`, `middleMethod()` |
+| 7 | Message Chains | `chainOfMethods()` |
+| 8 | Feature Envy | `notify*`, `apply*`, `handleComplaint`, `askForReceipt` |
+| 9 | Inappropriate Intimacy | `accessInternalDetails()` |
+| 10 | Refused Bequest | `refusedBequest()` |
+| 11 | Dead Code | `anotherUnusedMethod()`, `yetAnotherUnusedMethod()`, `tempDiscountCode`, `tempOrderNote` |
+| 12/14 | Temporary Field / Variáveis mal nomeadas | `tempDiscountCode`, `tempOrderNote` |
+| 13 | Condicional complexa (Switch Statements) | `handleComplaint()` |
+
+Observação: trata-se de um código-fonte propositalmente construído para conter code smells (dataset para fins de pesquisa/refatoração), conforme indicado no próprio comentário de licença no topo do arquivo.

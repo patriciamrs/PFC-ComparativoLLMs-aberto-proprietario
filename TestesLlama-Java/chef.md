@@ -1,57 +1,116 @@
-Vou analisar o código fornecido para identificar os code smells descritos no livro "Refatoração: Aperfeiçoando o Design de Códigos Existentes" de Martin Fowler.
+# Análise de Code Smells — Classe `Chef`
 
-Primeiro, vou examinar o código para identificar padrões problemáticos:
+Abaixo estão listados os code smells identificados no código, com o local de ocorrência e a justificativa.
 
-Vou analisar o código fornecido para identificar os code smells descritos por Martin Fowler. Vou examinar cuidadosamente o código para encontrar padrões problemáticos.
+---
 
-Vou agora analisar o código fornecido em detalhes para identificar os code smells presentes.
+**1. Código Morto (Dead Code)**
 
-Vou agora analisar o código fornecido em detalhes para identificar os code smells específicos:
+- **Onde:** `anotherUnusedMethod()`, `yetAnotherUnusedMethod()`, `refusedBequest()`
+- **Justificativa:** São métodos vazios, sem corpo e sem qualquer chamada que os invoque. Não exercem nenhuma função no sistema e nunca são executados, caracterizando código morto.
 
-Após uma análise cuidadosa do código fornecido, identifiquei os seguintes code smells presentes:
+---
 
-## 1. Large Class (Classe Grande)
-**Método/Classe:** Classe `Chef`
-**Justificativa:** A classe `Chef` possui muitos métodos e responsabilidades que não estão relacionadas diretamente com o conceito central de um "chef". Ela contém métodos para preparar pizzas, entregar pizzas, lidar com reclamações, atualizar informações de contato, notificar promoções, aplicar descontos, etc. Isso viola o princípio da responsabilidade única, pois a classe está fazendo várias coisas diferentes. A classe também tem muitas variáveis de instância (firstName, lastName, address, phoneNumber, email, etc.) que podem ser agrupadas em objetos separados.
+**2. Método Longo (Long Method)**
 
-## 2. Long Function (Função Longa)
-**Método:** `longMethod()`
-**Justificativa:** O método `longMethod()` é extremamente longo e faz múltiplas operações diferentes, incluindo preparar pizzas, notificar clientes, aplicar descontos, lidar com reclamações, etc. Segundo Martin Fowler, métodos longos são difíceis de entender e manter. Este método viola o princípio de que métodos devem ter uma única responsabilidade e ser pequenos.
+- **Onde:** `longMethod()`
+- **Justificativa:** O método concentra um grande número de instruções (dezoito chamadas), invocando funcionalidades das mais diversas (bake, cut, deliver, clean, update, notify, apply, handle, ask, chain, middle, access). Isso o torna extenso, de difícil leitura e com responsabilidades múltiplas.
 
-## 3. Data Class (Classe de Dados)
-**Classe:** `Chef`
-**Justificativa:** A classe `Chef` é essencialmente uma classe de dados com variáveis de instância e métodos getter/setter básicos, mas não possui comportamento significativo além de manipular dados. Ela age como um "container" de dados sem responsabilidades reais, o que é típico de uma classe de dados. Os métodos `updateContactInfo`, `updateName`, `updateAddress`, etc., são apenas setters, indicando que a classe não encapsula comportamentos adequados.
+---
 
-## 4. Duplicated Code (Código Duplicado)
-**Métodos:** `bakePizza` e `orderWithUnnecessaryDetails`
-**Justificativa:** O método `orderWithUnnecessaryDetails` chama `bakePizza("Veggie")` e depois `applyDiscount()` e `applyLoyaltyPoints()`. Já o método `duplicateMethod` chama duas vezes `bakePizza("Cheese")`. Embora não haja código idêntico em múltiplos lugares, há repetição de chamadas de métodos e padrões semelhantes que poderiam ser extrair em métodos mais genéricos.
+**3. Código Duplicado (Duplicated Code)**
 
-## 5. Feature Envy (Inveja de Recursos)
-**Método:** `accessInternalDetails()`
-**Justificativa:** O método `accessInternalDetails()` acessa diretamente o atributo interno `pizza.getTopping()` de outra classe, demonstrando inveja de recursos. O método deveria estar dentro da classe `Pizza` e não na classe `Chef`.
+- **Onde:** `duplicateMethod()`
+- **Justificativa:** O método realiza duas chamadas idênticas `this.bakePizza("Cheese")` em sequência, ou seja, repete a mesma lógica sem qualquer variação, o que configura duplicação de código.
 
-## 6. Refused Bequest (Recusa de Herança)
-**Método:** `refusedBequest()`
-**Justificativa:** O método `refusedBequest()` está presente na classe `Chef` mas não faz nada. Isso sugere uma tentativa de herança ou implementação de contrato que não é respeitado, o que é característico do code smell "Refused Bequest".
+---
 
-## 7. Middle Man (Homem-Meio)
-**Métodos:** `chainOfMethods()`, `middlemanMethod()`, `middleMethod()`, `realMethod()`
-**Justificativa:** O método `middlemanMethod()` chama `middleMethod()` e este chama `realMethod()`. Essa cadeia de chamadas indica um "middle man" - um método que apenas delega chamadas para outros métodos sem adicionar valor real.
+**4. Cadeia de Mensagens (Message Chains)**
 
-## 8. Unused Methods (Métodos Não Utilizados)
-**Métodos:** `anotherUnusedMethod()`, `yetAnotherUnusedMethod()`, `refusedBequest()`
-**Justificativa:** Estes métodos estão presentes no código mas não têm implementação ou uso real. Isso pode indicar código obsoleto ou planejado que nunca foi implementado.
+- **Onde:** `longMethod()` → invoca `chainOfMethods()`
+- **Justificativa:** A partir de `longMethod()` há uma sequência de invocações encadeadas (`longMethod → chainOfMethods → cleanKitchen`), na qual o cliente precisa navegar por uma cadeia de métodos para chegar à ação final. Isso caracteriza o chamado *message chain*.
 
-## 9. Long Parameter List (Lista Longa de Parâmetros)
-**Métodos:** `updateContactInfo()`, `updateName()`, `updateAddress()`, `updatePhoneNumber()`, `updateEmail()`
-**Justificativa:** O método `updateContactInfo()` recebe múltiplos parâmetros (firstName, lastName, address, phoneNumber, email) que poderiam ser agrupados em um objeto de dados para melhorar a legibilidade e manutenção.
+---
 
-## 10. Message Chains (Cadeias de Mensagens)
-**Método:** `accessInternalDetails()`
-**Justificativa:** O método `accessInternalDetails()` acessa diretamente `this.pizza.getTopping()`, criando uma cadeia de mensagens onde o cliente precisa conhecer a estrutura interna da dependência.
+**5. Classe Média / Intermediária (Middle Man)**
 
-## 11. Speculative Generality (Generalização Especulativa)
-**Métodos:** `anotherUnusedMethod()`, `yetAnotherUnusedMethod()`, `refusedBequest()`
-**Justificativa:** Estes métodos parecem ter sido criados com a expectativa de uso futuro, mas não são utilizados, o que é típico de generalização especulativa que aumenta a complexidade desnecessariamente.
+- **Onde:** `middlemanMethod()` e `middleMethod()`
+- **Justificativa:** `middlemanMethod()` apenas delega para `middleMethod()`, e este, por sua vez, apenas delega para `realMethod()`. Os métodos intermediários não adicionam comportamento algum, servindo unicamente de passagem — o padrão típico de um *middle man*.
 
-Esses code smells tornam o código difícil de entender, manter e modificar, indicando que seria necessário realizar refatorações para melhorar sua qualidade.
+---
+
+**6. Intimidade Inapropriada (Inappropriate Intimacy)**
+
+- **Onde:** `accessInternalDetails()`
+- **Justificativa:** O método acessa diretamente o detalhe interno de outro objeto por meio de `this.pizza.getTopping()`, expondo e consultando o estado interno da classe `Pizza`. Isso demonstra acoplamento excessivo entre as classes.
+
+---
+
+**7. Legitimação Incompleta / Recusa de Herança (Refused Bequest)**
+
+- **Onde:** `refusedBequest()`
+- **Justificativa:** O método está declarado mas possui corpo vazio, não aproveitando nem utilizando qualquer comportamento herdado ou esperado. É um típico caso de *refused bequest*, em que a subclasse (ou a classe em questão) ignora/recusa o que foi definido.
+
+---
+
+**8. Classe Grande (Large Class)**
+
+- **Onde:** A própria classe `Chef`
+- **Justificativa:** A classe possui muitos atributos (`pizza`, `busy`, `completedOrders`, `breaksTaken`, `kitchenClean`, `extraCheese`, `firstName`, `lastName`, `address`, `phoneNumber`, `email`, `tempDiscountCode`, `tempOrderNote`) e muitos métodos, misturando responsabilidades bem distintas: cozinhar pizza, gerenciar dados de contato do cliente, notificações de marketing, tratamento de reclamações, etc. Isso indica uma classe com excesso de responsabilidades.
+
+---
+
+**9. Campo Temporário / Variáveis Não Utilizadas**
+
+- **Onde:** Atributos `tempDiscountCode` e `tempOrderNote`
+- **Justificativa:** Os campos `tempDiscountCode` e `tempOrderNote` são declarados mas nunca inicializados nem utilizados em nenhum método. Isso indica campos temporários/redundantes que não têm propósito no estado do objeto.
+
+---
+
+**10. Lista Longa de Parâmetros (Long Parameter List)**
+
+- **Onde:** `updateContactInfo(String firstName, String lastName, String address, String phoneNumber, String email)`
+- **Justificativa:** O método recebe cinco parâmetros relacionados entre si (dados de contato). Uma quantidade elevada de parâmetros conjugados dificulta a legibilidade e a chamada do método, caracterizando *long parameter list*.
+
+---
+
+**11. Números/Booleans Mágicos / Flags (Boolean/Flag Parameters) — comportamento condicional frágil**
+
+- **Onde:** Atributos `busy`, `kitchenClean`, `extraCheese` e método `handleComplaint(String complaint)`
+- **Justificativa:** O método `handleComplaint()` utiliza uma cadeia de `if/else if` comparando strings literais ("cold pizza", "late delivery", "wrong order") sem qualquer abstração (ex.: enum), o que caracteriza *conditional complexity* / uso de valores literais mágicos. Além disso, o objeto carrega várias flags booleanas (`busy`, `kitchenClean`, `extraCheese`) que controlam estado interno, indicando *flag arguments/state flags*.
+
+---
+
+**12. Baixa Coesão (Low Cohesion / Divergent Change)**
+
+- **Onde:** Toda a classe `Chef`
+- **Justificativa:** Os métodos da classe tratam de assuntos completamente distintos — operações de cozinha (`bakePizza`, `cutPizzaAndPutInBox`, `deliverPizza`), dados pessoais (`updateName`, `updateAddress`, `updatePhoneNumber`, `updateEmail`), marketing (`notifyForPromotion`, `notifyForDiscount`, `notifyForNewArrivals`, `applyDiscount`, `applyLoyaltyPoints`) e atendimento ao cliente (`handleComplaint`, `askForReceipt`). Essa mistura de responsabilidades não relacionadas indica baixa coesão e tendência a divergir por vários motivos de mudança.
+
+---
+
+**13. Métodos com Nome Pouco Significativo / Métodos de Teste (Dead/Placeholder Methods)**
+
+- **Onde:** `anotherUnusedMethod()`, `yetAnotherUnusedMethod()`, `longMethod()`, `duplicateMethod()`
+- **Justificativa:** Os nomes `anotherUnusedMethod`, `yetAnotherUnusedMethod`, `longMethod`, `duplicateMethod` são claramente placeholders que descrevem o próprio defeito e não a intenção do código. Esses métodos foram inseridos sem propósito funcional (reforçando o item de *dead code*), mas, se executados, só imprimem mensagens genéricas — indício de código artificial para estudo de smells.
+
+---
+
+## Resumo dos Smells Encontrados
+
+| # | Code Smell | Local |
+|---|------------|-------|
+| 1 | Dead Code | `anotherUnusedMethod`, `yetAnotherUnusedMethod`, `refusedBequest` |
+| 2 | Long Method | `longMethod()` |
+| 3 | Duplicated Code | `duplicateMethod()` |
+| 4 | Message Chains | `longMethod()` → `chainOfMethods()` |
+| 5 | Middle Man | `middlemanMethod()`, `middleMethod()` |
+| 6 | Inappropriate Intimacy | `accessInternalDetails()` |
+| 7 | Refused Bequest | `refusedBequest()` |
+| 8 | Large Class | classe `Chef` |
+| 9 | Campos Não Utilizados / Temporários | `tempDiscountCode`, `tempOrderNote` |
+| 10 | Long Parameter List | `updateContactInfo(...)` |
+| 11 | Conditionais complexos / Flags | `handleComplaint()`, flags `busy`, `kitchenClean`, `extraCheese` |
+| 12 | Low Cohesion / Divergent Change | classe `Chef` (todo) |
+| 13 | Nomes pouco significativos / placeholders | métodos com nomes descritivos do defeito |
+
+> Observação: conforme solicitado, a análise se limita a **identificar** os smells existentes, sem propor refatorações ou alterações no código.

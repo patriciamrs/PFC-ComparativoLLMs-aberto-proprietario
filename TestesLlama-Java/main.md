@@ -1,41 +1,87 @@
-Com base no código fornecido e nos code smells identificados no livro "Refatoração" de Martin Fowler, aqui estão os code smells encontrados:
+# Análise de Code Smells
 
-1.  **Code Smell:** Método Longo
-    *   **Localização:** Método `measureExecutionTime`
-    *   **Justificativa:** O método `measureExecutionTime` contém várias instruções realizando ações distintas (inicialização de variáveis, execução do loop, cálculo da média). Embora não seja excessivamente longo, ele realiza várias operações que poderiam ser divididas em métodos menores e mais focados. De acordo com as diretrizes de Fowler, um método deve ser idealmente curto e focado em uma única tarefa. Este método combina inicialização, loop de execução, acúmulo e cálculo, tornando-o menos legível e mais difícil de isolar comportamentos específicos para teste ou modificação.
+Abaixo está a identificação dos code smells presentes no código. Observo que o arquivo apresentado contém apenas a classe `main` (ver nota ao final sobre as classes referenciadas).
 
-2.  **Code Smell:** Código Duplicado
-    *   **Localização:** Método `main`
-    *   **Justificativa:** O método `main` instancia um `Shop`, um `Customer` e chama `customer.orderPizza(...)` e `customer.complain(...)`. Embora essas chamadas estejam dentro de um único método, o padrão de criar um `Shop`, um `Customer` e interagir com eles é repetido no método `measureExecutionTime` (que também é chamado de `main`). A lógica de instanciação e interação é duplicada entre `main` e `measureExecutionTime`. No entanto, a duplicação principal não está dentro do mesmo método, mas entre diferentes métodos, o que está mais alinhado com "Cirurgia Dispersa" se as interações com `Shop` ou `Customer` fossem modificadas frequentemente em vários lugares. Neste trecho específico, a duplicação é mínima, mas a estrutura implica um padrão que poderia ser abstraído.
+---
 
-3.  **Code Smell:** Lista de Parâmetros Longa
-    *   **Localização:** Método `main`
-    *   **Justificativa:** O método `main` tem uma lista de parâmetros com um único elemento (`String[] args`). Embora isso não constitua uma lista de parâmetros longa, vale mencionar que métodos `main` normalmente possuem essa assinatura. O próprio método `main` não contém uma lista de parâmetros longa, mas a estrutura sugere que o método `measureExecutionTime` é chamado sem parâmetros, e sua lógica interna (como criar objetos) pode ser considerada uma forma de passagem implícita de parâmetros. Esta é uma observação menor e não é um smell forte, mas reflete o fato de que o método `main` não demonstra explicitamente uma lista de parâmetros longa, mas a estrutura do código envolve passagem de parâmetros implicitamente através da criação de objetos.
+## 1. Nome de classe em minúscula (violação de convenção de nomenclatura / *Naming Convention Violation*)
 
-4.  **Code Smell:** Classe de Dados
-    *   **Localização:** Classe `main` (implícita)
-    *   **Justificativa:** A classe `main` é principalmente um contêiner para o método `main` e o método `measureExecutionTime`. Ela não contém campos significativos de dados ou comportamento relacionado às classes `Shop` ou `Customer`. Embora a classe `main` em si não contenha campos de dados, ela serve como uma classe de controle que orquestra a interação entre `Shop` e `Customer`. A falta de comportamento dentro da própria classe `main` pode ser interpretada como uma forma de classe de dados se ela estivesse destinada a conter dados e comportamento relacionados às entidades `Shop` ou `Customer`. No entanto, como a classe `main` é apenas um controlador, esta é uma interpretação forçada. O código não exibe um smell típico de classe de dados, mas a classe principal é mínima e carece de comportamento significativo, o que pode ser considerado um "elemento preguiçoso".
+**Trecho:** Declaração da classe `public class main {`
 
-5.  **Code Smell:** Apegos ao Recurso (Feature Envy)
-    *   **Localização:** Método `measureExecutionTime`
-    *   **Justificativa:** O método `measureExecutionTime` está principalmente preocupado em medir o tempo de execução. No entanto, ele interage diretamente com objetos `Customer` e `Shop` (`new Customer(shop)`, `customer.orderPizza(...)`, `customer.complain(...)`). Ele não está manipulando diretamente os dados desses objetos, mas está usando-os de uma maneira que sugere que poderia beneficiar-se de estar parte das classes `Customer` ou `Shop`, ou pelo menos ter acesso mais direto ao seu comportamento. Este é um caso sutil e depende de como as classes `Customer` e `Shop` estão estruturadas. Se `orderPizza` ou `complain` fossem métodos centrais para a medição do tempo de execução, o smell seria mais forte. Neste contexto, trata-se mais sobre o foco do método em orquestrar objetos do que conter comportamento relacionado à medição de tempo.
+**Justificativa:** A convenção de nomenclatura Java (e a própria identidade do code smell "código em desacordo com padrões de estilo") exige que nomes de classes sejam escritos em *PascalCase*, iniciando com letra maiúscula. O nome `main` está em minúsculas, o que não apenas viola a convenção como causa confusão com o método `main`, dificultando a leitura e a distinção entre o tipo e o ponto de entrada do programa.
 
-6.  **Code Smell:** Mudança Divergente
-    *   **Localização:** Classe `main`
-    *   **Justificativa:** A classe `main` é responsável por orquestrar a medição do tempo de execução e potencialmente gerenciar os objetos `Shop` e `Customer`. Se a classe `main` fosse expandida com funcionalidades adicionais (por exemplo, diferentes tipos de medições, cenários diferentes para clientes ou tarefas adicionais para a loja), provavelmente exigiria modificações em múltiplos locais dentro da classe. Isso poderia levar a uma situação onde a classe muda por diferentes razões (tempo de execução, comportamento do cliente, comportamento da loja), indicando uma possível divergência nas responsabilidades.
+---
 
-7.  **Code Smell:** Cirurgia Dispersa (Shotgun Surgery)
-    *   **Localização:** Classe `main` (implícita)
-    *   **Justificativa:** Se a lógica para medir o tempo de execução precisasse mudar significativamente (por exemplo, requerer modificações em como os objetos `Shop` ou `Customer` são criados ou utilizados), isso provavelmente exigiria alterações no método `main` e potencialmente no método `measureExecutionTime`. Isso constituía uma "cirurgia dispersa" se as mudanças fossem distribuídas por vários métodos ou classes. Neste trecho específico, é difícil avaliar completamente o impacto sem ver todo o código-base, mas o padrão de criar objetos e interagir com eles em um loop sugere uma potencial para tal mudança.
+## 2. Método com múltiplas responsabilidades dentro da lógica de medição (mistura de responsabilidades / *doing too much* — coesão baixa)
 
-8.  **Code Smell:** Nome Misterioso (Mysterious Name)
-    *   **Localização:** Classe `main`
-    *   **Justificativa:** O nome da classe `main` não é descritivo do seu propósito. Ele apenas indica que contém o ponto de entrada da aplicação. Um nome mais descritivo como `AnalisadorTempoExecucao` ou `TestadorDesempenho` seria mais informativo. Este é um problema menor, mas reflete o princípio geral de que nomes de classes devem indicar claramente seu propósito e responsabilidades.
+**Trecho:** Método `measureExecutionTime()`, especialmente o bloco do `for`:
 
-9.  **Code Smell:** Método Longo (Revisitado)
-    *   **Localização:** Método `measureExecutionTime`
-    *   **Justificativa:** Esta é uma repetição da observação inicial. O método `measureExecutionTime`, embora não seja extremamente longo, contém etapas lógicas distintas que poderiam ser separadas em métodos menores para clareza e manutenibilidade. O método combina inicialização, loop, acúmulo e cálculo, que são responsabilidades distintas que poderiam se beneficiar de ser extraídas para métodos menores.
+```java
+Shop shop = new Shop();
+Customer customer = new Customer(shop);
+customer.orderPizza("Cheese");
+customer.complain("The pizza is too cold.");
+```
 
-10. **Code Smell:** Elemento Preguiçoso (Lazy Element)
-    *   **Localização:** Classe `main`
-    *   **Justificativa:** A classe `main`, como apresentada, é muito mínima. Ela só contém o método `main` e o método `measureExecutionTime`. Se o método `measureExecutionTime` fosse movido para uma classe utilitária dedicada à medição de desempenho, a classe `main` se tornaria um "elemento preguiçoso" — uma classe que não oferece funcionalidade suficiente para justificar sua existência. É uma classe mínima que talvez seja melhor integrada a outra classe ou removida completamente se não servir a um propósito claro.
+**Justificativa:** O método que deveria apenas medir tempo de execução também é responsável por **definir o cenário de negócio** (criar `Shop`, `Customer`, escolher a pizza "Cheese", escolher a reclamação). Ele acumula responsabilidades de temporização e de configuração do domínio, reduzindo a coesão. Um método coeso deveria ter uma única responsabilidade clara.
+
+---
+
+## 3. Números e *strings* mágicos (*Magic Numbers* e *Magic Strings*)
+
+**Trecho:** Dentro de `measureExecutionTime()`:
+
+- `int runs = 10;`
+- `customer.orderPizza("Cheese");`
+- `customer.complain("The pizza is too cold.");`
+- `// Convert nanoseconds to seconds` com `1_000_000_000.0`
+
+**Justificativa:** Valores literais (`10`, `"Cheese"`, `"The pizza is too cold."`, `1_000_000_000.0`) aparecem embutidos diretamente no código sem nomes explicativos. Isso caracteriza *Magic Numbers* e *Magic Strings*: valores que carregam significado de negócio ou de configuração, mas cuja intenção não é autoexplicativa. Alterar qualquer um deles exige procurar e editar o literal espalhado no código, dificultando manutenção e entendimento.
+
+---
+
+## 4. Uso de tipos primitivos/inseguros para representar conceitos de domínio (*Primitive Obsession* — tendência)
+
+**Trecho:** `int runs = 10;` e o retorno `double` de `measureExecutionTime()`, manipulando tempos em `long`/`double`.
+
+**Justificativa:** O código representa conceitos como "número de execuções" e "tempo de execução" usando tipos primitivos (`int`, `long`, `double`) misturados em diferentes unidades (nanossegundos e segundos), com o comentário `// Convert nanoseconds to seconds` explicitando a fragilidade. Há obsessão por primitivos em vez de abstrações que encapsulem valor + unidade, o que favorece erros de conversão.
+
+---
+
+## 5. Código copiado/estrutura repetida de acumulação (*Duplicated Code* — repetição de padrão de loop)
+
+**Trecho:** Os dois loops em `measureExecutionTime()`:
+
+```java
+for (int i = 0; i < runs; i++) { ... executionTimes.add(executionTime); }
+...
+for (Long time : executionTimes) {
+    totalExecutionTime += time;
+}
+```
+
+**Justificativa:** Há duas estruturas de iteração que fazem tarefas equivalentes de percorrer/acumular valores sobre a coleção de tempos. O segundo laço poderia ser substituído por uma operação de redução/soma, o que evidencia o padrão de duplicação de lógica de agregação em vez de reaproveitar uma operação existente. *(Observação: classifico aqui como duplicação de padrão de iteração — veja a nota abaixo.)*
+
+---
+
+## 6. Comentário compensando código pouco claro (*Comment as a substitute for clarity* / *Obscure Code with Comments*)
+
+**Trecho:** `return totalExecutionTime / runs / 1_000_000_000.0; // Convert nanoseconds to seconds`
+
+**Justificativa:** O comentário existe para explicar *o que* o código faz, e não *por que*. A expressão encadeada de divisões com o literal `1_000_000_000.0` é pouco autoexplicativa; o comentário mascara a falta de clareza sem resolvê-la. Comentários que compensam código obscuro são considerados code smell.
+
+---
+
+## 7. Efeitos colaterais ocultos em código de medição (*Hidden Side Effects* / falta de isolamento)
+
+**Trecho:** O corpo do `for` em `measureExecutionTime()` instancia objetos e executa ações de negócio (`orderPizza`, `complain`) a cada iteração.
+
+**Justificativa:** O método aparenta ser um utilitário de medição de tempo, mas na verdade provoca efeitos colaterais significativos (criação de objetos, alteração de estado de domínio como pedidos e reclamações). Isso torna seu comportamento não óbvio a partir da assinatura, representando um efeito colateral escondido — especialmente problemático num método que se repete 10 vezes, potencialmente acumulando estado.
+
+---
+
+## Nota de escopo
+
+O trecho fornecido contém **apenas** a classe `main`. Não foram incluídas no enunciado as definições de `Shop` e `Customer`. Portanto, smells que dependem da implementação dessas classes (p.ex. *Inappropriate Intimacy* entre `Customer` e `Shop`, *God Class*, *Feature Envy*) **não podem ser confirmados** apenas com este arquivo e por isso não estão listados como ocorrências efetivas. Os smells acima são os que se sustentam com base exclusivamente no código apresentado.
+
+Se você puder enviar também as classes `Shop` e `Customer`, posso complementar a análise com os smells que dependem delas.

@@ -1,63 +1,35 @@
-Vou analisar o código fornecido para identificar os code smells descritos no livro "Refatoração: Aperfeiçoando o Design de Códigos Existentes" de Martin Fowler.
+# Análise de Code Smells — Classe `Customer`
 
-Vamos examinar o código classe `Customer` para encontrar padrões indesejáveis.
+A classe `Customer` apresenta uma grande quantidade de code smells, muitos deles propositalmente inseridos (o cabeçalho do arquivo indica que é um dataset de código "smelly" para pesquisa e refatoração). A seguir, apresento cada ocorrência em texto corrido.
 
-Vou analisar o código fornecido para identificar os code smells mencionados por Martin Fowler. Vamos examinar cada método e estrutura do código para encontrar padrões problemáticos.
+**Dead Code (Código Morto) e Empty Method (Métodos Vazios).** O método `anotherUnusedMethod()` é declarado com o corpo completamente vazio e não é chamado por ninguém, configurando código morto. O mesmo ocorre com `refusedBequest()`, que também é um método vazio, sem implementação e sem uso — embora o nome remeta ao smell "Refused Bequest", aqui o efeito concreto é o de código morto. De forma semelhante, `middleMethod()` e `realMethod()`, além de `askForReceipt()`, existem apenas para imprimir mensagens triviais, sem lógica de negócio real e sem contribuição funcional ao comportamento da classe.
 
-Vou analisar o código fornecido para identificar os code smells presentes. Vamos examinar cada método e estrutura da classe Customer para encontrar padrões problemáticos.
+**Middle Man (Homem do Meio).** O método `middleMethod()` apenas delega a chamada para `realMethod()`, sem acrescentar nenhum comportamento próprio. Da mesma forma, `middlemanMethod()` chama `middleMethod()`, que por sua vez chama `realMethod()`, criando uma corrente de delegação desnecessária. Essa delegação em excesso caracteriza o smell de Middle Man.
 
-Vou analisar diretamente o código fornecido para identificar os code smells.
+**Message Chain / Chain of Methods (Cadeia de Mensagens).** No método `chainOfMethods()`, a chamada `this.pizzaShop.getCashier().getChef().cleanKitchen()` percorre uma cadeia profunda de objetos, criando forte acoplamento com a estrutura interna da `Shop`. O mesmo padrão aparece em `accessInternalDetails()`, com `pizzaShop.getCashier().getChef().isBusy()`.
 
-Vou analisar o código fornecido para identificar os code smells presentes com base nas definições de Martin Fowler.
+**Long Method (Método Longo).** O método `longComplaintMethod()` concentra seis chamadas a `complain()` seguidas de `askForReceipt()` em um único bloco, acumulando muitas instruções repetitivas. Já `orderWithUnnecessaryDetails(...)` também é extenso, misturando impressão de mensagem e chamada de outro método com muitos parâmetros.
 
-## Code Smells Identificados
+**Long Parameter List (Lista Longa de Parâmetros).** `orderWithUnnecessaryDetails(...)` recebe seis parâmetros (`pizzaType`, `size`, `crustType`, `toppings`, `extraCheese`, `discountCode`), a maioria dos quais apenas é impressa e não participa da lógica. O método `updateContactInfo(...)` recebe cinco parâmetros (`firstName`, `lastName`, `address`, `phoneNumber`, `email`), que espelham campos individuais que já possuem métodos `update...` próprios.
 
-### 1. Long Method (Método Longo)
-**Método:** `longComplaintMethod()`
-**Justificativa:** Este método possui múltiplas linhas de código (7 linhas) e realiza várias operações distintas: exibe uma mensagem inicial, faz várias chamadas ao método `complain()` com diferentes reclamações, e depois chama `askForReceipt()`. Segundo os princípios de refatoração, métodos com mais de 10 linhas devem ser analisados para possíveis refatorações. O método está realizando múltiplas responsabilidades (gerar várias reclamações e solicitar recibo) em um único bloco de código.
+**Duplicate Code (Código Duplicado).** Em `duplicateComplaint()`, as chamadas `complain("Pizza is cold")` e `complain("Pizza is late")` aparecem repetidas duas vezes cada. O mesmo padrão de instruções repetidas (`this.complain(...)`) reaparece em `longComplaintMethod()`, caracterizando duplicação de estrutura.
 
-### 2. Long Method (Método Longo)
-**Método:** `orderWithUnnecessaryDetails()`
-**Justificativa:** Este método possui 3 linhas de código com uma grande quantidade de parâmetros e uma única instrução de saída. Embora tenha poucas linhas, é um exemplo de método com parâmetros excessivos, o que pode dificultar sua manutenção e compreensão.
+**Inappropriate Intimacy (Intimidade Inapropriada) / Feature Envy.** Em `accessInternalDetails()`, o objeto acessa detalhes internos de outro (`getCashier().getChef().isBusy()`), demonstrando acoplamento excessivo entre classes. O mesmo fenômeno ocorre em `complain()` e `chainOfMethods()`, que penetram na estrutura interna da `Shop` via `getCashier()`.
 
-### 3. Long Method (Método Longo)
-**Método:** `duplicateComplaint()`
-**Justificativa:** Este método possui 5 linhas de código e chama múltiplas vezes o mesmo método (`complain`) com os mesmos parâmetros, repetindo ações. Isso demonstra um problema de duplicação de código dentro de um método.
+**Dispersed Coupling (Acoplamento Disperso).** O caminho de dependência `pizzaShop.getCashier()` é reutilizado em vários métodos distintos, espalhando o acoplamento pela classe inteira em vez de concentrá-lo em um ponto.
 
-### 4. Long Method (Método Longo)
-**Método:** `chainOfMethods()`
-**Justificativa:** Este método contém uma cadeia de chamadas de métodos (`this.pizzaShop.getCashier().getChef().cleanKitchen()`), o que pode dificultar a leitura e manutenção do código.
+**Primitive Obsession (Obsessão por Primitivos).** Praticamente todos os atributos da classe são primitivos ou `String`: `firstName`, `lastName`, `address`, `phoneNumber`, `email`, `tempDiscountCode`, `tempOrderNote` e o `boolean frequentCustomerDiscount`. Conceitos ricos como endereço, telefone e e-mail são representados por tipos simples, em vez de objetos de valor.
 
-### 5. Large Class (Classe Grande)
-**Classe:** `Customer`
-**Justificativa:** A classe `Customer` possui muitos métodos relacionados a diferentes responsabilidades, incluindo pedidos, reclamações, atualização de informações de contato, notificações, tratamento de reclamações e acesso a detalhes internos do `pizzaShop`. Esta classe parece estar assumindo múltiplas responsabilidades, violando o princípio da单一 responsabilidade. Uma classe com tantos métodos diferentes pode ser considerada um "god object".
+**Temporary Field (Campo Temporário).** Os atributos `tempDiscountCode` e `tempOrderNote` são declarados com o prefixo "temp" e existem apenas para uso temporário e condicional, tendendo a ficar vazios na maior parte do tempo de vida do objeto.
 
-### 6. Feature Envy (Inveja de Recursos)
-**Método:** `accessInternalDetails()`
-**Justificativa:** Este método acessa diretamente os detalhes internos de outro objeto (`pizzaShop.getCashier().getChef().isBusy()`), demonstrando inveja de recursos do objeto `pizzaShop`. O método deveria estar na classe `PizzaShop` ou em uma classe especializada para gerenciar detalhes internos.
+**Switch Statements / Cadeia de Condicionais.** No método `handleComplaint(String complaint)`, há uma sequência extensa de `if / else if` comparando strings (`"cold pizza"`, `"late delivery"`, `"wrong order"`) para decidir o comportamento, sem uso de polimorfismo.
 
-### 7. Refused Bequest (Rejeição de Herança)
-**Método:** `refusedBequest()`
-**Justificativa:** Este método está vazio e não faz nada além de declará-lo. Pode indicar uma tentativa de herança que não foi implementada corretamente ou um método que foi herdado mas não é relevante para esta classe.
+**Data Class (Classe Anêmica).** Como um todo, a classe `Customer` funciona em boa parte como um recipiente de dados, expondo campos por meio de vários métodos `update...` (`updateName`, `updateAddress`, `updatePhoneNumber`, `updateEmail`, além de `updateContactInfo`), com pouca lógica de negócio significativa.
 
-### 8. Duplicated Code (Código Duplicado)
-**Método:** `duplicateComplaint()`
-**Justificativa:** Este método chama múltiplas vezes o mesmo método `complain("Pizza is cold")` e `complain("Pizza is late")` com os mesmos parâmetros, mostrando duplicação de chamadas de método.
+**Speculative Generality (Generalidade Especulativa).** Os métodos `notifyForPromotion()`, `notifyForDiscount()`, `notifyForNewArrivals()`, `applyDiscount()` e `applyLoyaltyPoints()` parecem criados para um uso futuro hipotético, mas apenas imprimem mensagens e não são chamados em nenhum lugar.
 
-### 9. Middle Man (Intermediário)
-**Métodos:** `middlemanMethod()` e `middleMethod()`
-**Justificativa:** O método `middlemanMethod()` chama `middleMethod()` que, por sua vez, chama `realMethod()`. Isso cria uma cadeia de chamadas intermediárias que não agregam valor significativo, demonstrando o code smell de "Middle Man".
+**Bad Naming (Nomenclatura Inadequada).** Nomes como `middleMethod()`, `anotherUnusedMethod()` e `refusedBequest()` são genéricos ou até nomeiam o próprio smell, sem significado de domínio claro.
 
-### 10. Data Class (Classe de Dados)
-**Classe:** `Customer`
-**Justificativa:** A classe `Customer` possui apenas atributos públicos e métodos que apenas atualizam esses atributos ou fazem chamadas simples para outros objetos. Não há comportamento significativo encapsulado na classe, o que é típico de uma classe de dados.
+**Violação da Lei de Demeter.** Tanto `accessInternalDetails()` quanto `chainOfMethods()` chamam métodos de objetos obtidos por meio de outros métodos (`getCashier().getChef()...`), violando o princípio de "falar apenas com amigos diretos".
 
-### 11. Long Parameter List (Lista de Parâmetros Longa)
-**Método:** `orderWithUnnecessaryDetails()`
-**Justificativa:** Este método recebe 6 parâmetros (`pizzaType`, `size`, `crustType`, `toppings`, `extraCheese`, `discountCode`), o que é considerado excessivo. Um número elevado de parâmetros torna difícil a manutenção e uso do método.
-
-### 12. Message Chains (Cadeias de Mensagens)
-**Método:** `chainOfMethods()`
-**Justificativa:** O método utiliza uma cadeia de chamadas de métodos (`this.pizzaShop.getCashier().getChef().cleanKitchen()`), o que pode dificultar a manutenção e tornar o código mais frágil. Isso é um exemplo de "Message Chain" code smell.
-
-Esses code smells indicam que a classe `Customer` precisa de refatoração para melhorar sua estrutura e manutenibilidade.
+Em resumo, os smells presentes incluem: Dead Code / Empty Method, Middle Man, Message Chain, Long Method, Long Parameter List, Duplicate Code, Inappropriate Intimacy (com indícios de Feature Envy), Dispersed Coupling, Primitive Obsession, Temporary Field, Switch Statements (cadeia de condicionais), Data Class anêmica, Speculative Generality, Bad Naming e violação da Lei de Demeter. Conforme solicitado, não foram propostas refatorações nem alterações na implementação.

@@ -1,9 +1,0 @@
-Com base no código fornecido e nos code smells identificados no livro "Refatoração: Aperfeiçoando o Design de Códigos Existentes" de Martin Fowler, aqui estão as ocorrências encontradas:
-
-*   **Code Smell:** Função Longa / Método Longo
-*   **Local:** Função `measure_execution_time`
-*   **Justificativa:** A função `measure_execution_time` é um método longo. Ela contém vários passos: inicializar os objetos `Shop` e `Customer`, executar um pedido e reclamação do cliente, medir o tempo de execução, acumular o tempo total, calcular a média e retornar o resultado. De acordo com as diretrizes de Fowler, métodos longos são difíceis de entender, testar e manter. Esta função realiza múltiplas ações distintas (inicialização, execução, medição, agregação e cálculo) que poderiam ser divididas em funções menores e mais focadas. Ela excede o comprimento recomendado para uma única função, tornando difícil compreender seu propósito geral de uma só vista.
-
-*   **Code Smell:** Código Duplicado
-*   **Local:** O padrão de instanciação e interação dentro do loop na função `measure_execution_time`
-*   **Justificativa:** Dentro do loop da função `measure_execution_time`, o código repete repetidamente a instanciação de um objeto `Shop`, a criação de um objeto `Customer` com essa loja e a chamada de `customer.order_pizza("Cheese")` e `customer.complain("The pizza is too cold.")`. Embora não sejam blocos de código idênticos, a estrutura de criar objetos e invocar métodos é repetida. Se a lógica para configurar o `Shop` e o `Customer` e executar o pedido/reclamação fosse extraída para uma função separada, essa repetição poderia ser eliminada, alinhando-se ao princípio DRY (Don't Repeat Yourself). Este é um caso sutil de duplicação em estrutura, embora não seja uma duplicação exata de blocos de código.
