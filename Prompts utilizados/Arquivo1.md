@@ -1,9 +1,12 @@
-## O prompt utilizado para esta pesquisa foi o seguinte:
 
-“Analise o código-fonte apresentado abaixo e identifique todos os code smells presentes no código. Para cada ocorrência encontrada, informe: 
-•	O nome do code smell;
-•	O trecho, método, função ou classe em que ele ocorre;
-•	Uma breve justificativa explicando por que o trecho identificado se caracteriza como esse tipo de code smell.
+## Prompt utilizado na pesquisa
 
-Considere apenas os code smells efetivamente presentes no código e não proponha refatorações ou alterações na implementação.”
- 
+O prompt utilizado para esta pesquisa foi o seguinte:
+
+> Analise o código-fonte apresentado abaixo e identifique todos os *code smells* presentes no código. Para cada ocorrência encontrada, informe:
+>
+> - O nome do *code smell*;
+> - O trecho, método, função ou classe em que ele ocorre;
+> - Uma breve justificativa explicando por que o trecho identificado se caracteriza como esse tipo de *code smell*.
+>
+> Considere apenas os *code smells* efetivamente presentes no código e não proponha refatorações ou alterações na implementação.
