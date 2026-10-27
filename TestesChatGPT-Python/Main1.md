@@ -1,10 +1,26 @@
 
-## Análise de Code Smells
+## Análise de Code Smells — `main.py`
 
-Após a análise do código-fonte, com base nos *code smells* descritos por Martin Fowler no livro *Refatoração: Aperfeiçoando o Design de Códigos Existentes*, **não foram identificados code smells evidentes no trecho apresentado**.
+Após analisar o código apresentado, **não foram identificados code smells evidentes** que possam ser classificados com segurança segundo o catálogo de Martin Fowler.
 
-A função `measure_execution_time()` possui uma responsabilidade bem definida: medir o tempo médio de execução de determinadas operações. Sua implementação é relativamente curta e não apresenta duplicação significativa de código, complexidade excessiva ou agrupamentos inadequados de dados.
+A função `measure_execution_time()` possui uma responsabilidade bem definida: medir o tempo médio de execução de uma sequência de operações. Sua estrutura é relativamente simples, sem duplicações significativas, métodos excessivamente longos ou condicionais complexas.
 
-O parâmetro `runs=10` também não caracteriza, isoladamente, um *code smell*, pois representa uma configuração explícita da quantidade de execuções.
+### Possível ocorrência: Magic Number
 
-**Conclusão:** Não foram identificadas ocorrências de *code smells* que possam ser justificadas com segurança a partir do código apresentado, considerando a classificação de Martin Fowler.
+**Localização:** Parâmetro `runs=10` da função `measure_execution_time()`.
+
+```python
+def measure_execution_time(runs=10):
+```
+
+**Justificativa:** O valor literal `10` estabelece a quantidade padrão de execuções. Embora possa ser considerado um *Magic Number* em algumas classificações, seu significado é compreensível pelo nome do parâmetro. Portanto, não há evidência suficiente para classificá-lo como um problema de manutenção.
+
+Além disso, *Magic Number* não é tratado como um smell independente no catálogo clássico de Fowler.
+
+### Conclusão
+
+**Nenhum code smell confirmado.**
+
+O código apresenta uma estrutura simples e organizada, sem evidências suficientes para afirmar a presença de smells como *Long Method*, *Duplicated Code*, *Feature Envy* ou *Dead Code*.
+
+Essa conclusão considera apenas o trecho fornecido, sem avaliar a implementação das classes `Shop` e `Customer`.

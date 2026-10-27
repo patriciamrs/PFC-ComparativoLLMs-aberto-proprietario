@@ -1,150 +1,91 @@
+# Análise de Code Smells — Classe Customer (Python)
 
-# Análise de Code Smells — Classe Customer
+### 1. Large Class (Classe Grande)
 
-### 1. Data Clumps (Agrupamento de Dados)
+**Localização:** Classe `Customer`.
 
-**Localização:** Classe `Customer`, método `__init__()` e método `update_contact_info()`.
+**Justificativa:** A classe possui muitos atributos e métodos, concentrando responsabilidades relacionadas a pedidos, reclamações, dados pessoais, descontos, notificações e bebidas. Essa diversidade de responsabilidades caracteriza uma classe com funcionalidades excessivas.
 
-**Trecho:**
+### 2. Duplicate Code (Código Duplicado)
 
-    self.first_name = None
-    self.last_name = None
-    self.address = None
-    self.phone_number = None
-    self.email = None
-
-**Justificativa:** Os atributos relacionados às informações pessoais e de contato formam um grupo de dados que aparece conjuntamente na inicialização e no método `update_contact_info()`, caracterizando um agrupamento de dados relacionados.
-
-### 2. Temporary Field (Campo Temporário)
-
-**Localização:** Classe `Customer`, método `__init__()`.
+**Localização:** Método `duplicate_complaint()`.
 
 **Trecho:**
+    self.complain("Pizza is cold")
+    self.complain("Pizza is cold")
+    self.complain("Pizza is late")
+    self.complain("Pizza is late")
 
-    self.temp_discount_code = None
-    self.temp_order_note = None
+**Justificativa:** As mesmas chamadas são repetidas consecutivamente, representando duplicação de instruções sem diferença de comportamento entre as ocorrências.
 
-**Justificativa:** Os atributos representam informações temporárias relacionadas a descontos e observações de pedidos. São inicializados com `None` e não são utilizados nos demais métodos apresentados, indicando campos que não participam do comportamento habitual da classe.
-
-### 3. Dead Code (Código Morto)
-
-**Localização:** Métodos `another_unused_method()`, `yet_another_unused_method()` e `refused_bequest()`.
-
-**Trecho:**
-
-    def another_unused_method(self):
-        pass
-
-    def yet_another_unused_method(self):
-        pass
-
-    def refused_bequest(self):
-        pass
-
-**Justificativa:** Os métodos não possuem implementação funcional e não são utilizados em nenhuma parte do código apresentado. Dessa forma, constituem trechos sem comportamento efetivo.
-
-### 4. Message Chains (Cadeias de Mensagens)
+### 3. Message Chains (Cadeias de Mensagens)
 
 **Localização:** Métodos `complain()`, `chain_of_methods()` e `access_internal_details()`.
 
 **Trechos:**
-
-    self.pizza_shop.casher.calm_customer_down()
     self.pizza_shop.casher.chef.clean_kitchen()
-
-    self.pizza_shop.casher.chef.clean_kitchen()
-
     self.pizza_shop.casher.chef.busy
 
-**Justificativa:** Os métodos acessam objetos por meio de sequências de referências encadeadas, fazendo com que a classe `Customer` dependa da estrutura interna de outros objetos para executar operações ou consultar informações.
+**Justificativa:** Os métodos acessam objetos por meio de uma sequência de referências, atravessando diferentes níveis da estrutura interna de outras classes. Isso aumenta o acoplamento e cria dependência da organização interna dos objetos.
 
-### 5. Middle Man (Intermediário)
+### 4. Middle Man (Intermediário)
 
-**Localização:** Método `middle_method()`.
+**Localização:** Métodos `middleman_method()` e `middle_method()`.
 
 **Trecho:**
+    def middleman_method(self):
+        print("Customer is calling a middleman method")
+        self.middle_method()
 
     def middle_method(self):
         print("Middleman method delegating to another method")
         self.real_method()
 
-**Justificativa:** O método atua principalmente como intermediário, encaminhando a execução para `real_method()` sem acrescentar lógica significativa à operação, além da mensagem exibida.
+**Justificativa:** Os métodos funcionam principalmente como intermediários, encaminhando a execução até `real_method()`, sem acrescentar lógica significativa além das mensagens exibidas.
 
-### 6. Long Parameter List (Lista Longa de Parâmetros — Não Confirmado)
+### 5. Feature Envy (Inveja de Funcionalidade)
 
-**Localização:** Método `order_with_unnecessary_details()`.
-
-**Trecho:**
-
-    self.order_pizza(
-        "Veggie", "Large", "Whole Wheat", "Veggies",
-        False, True, False, False, "Olives", "Mushrooms",
-        "Pesto", "Thick", False, False, True, True,
-        True, False, False, False
-    )
-
-**Justificativa:** A chamada apresenta uma quantidade excessiva de argumentos, dificultando a compreensão de seus significados. Entretanto, o método `order_pizza()` recebe apenas um argumento além de `self`, tornando a chamada incompatível com sua assinatura. Portanto, não é possível confirmar esse code smell na declaração do método.
-
-### 7. Duplicated Code (Código Duplicado)
-
-**Localização:** Método `duplicate_complaint()`.
-
-**Trecho:**
-
-    self.complain("Pizza is cold")
-    self.complain("Pizza is cold")
-    self.complain("Pizza is late")
-    self.complain("Pizza is late")
-
-**Justificativa:** Existem chamadas idênticas repetidas consecutivamente, executando as mesmas operações com os mesmos argumentos, caracterizando duplicação de código.
-
-### 8. Divergent Change (Mudança Divergente — Indício)
-
-**Localização:** Classe `Customer`, especialmente os métodos relacionados a pedidos, reclamações, informações de contato e promoções.
+**Localização:** Métodos `complain()` e `access_internal_details()`.
 
 **Trechos:**
+    self.pizza_shop.casher.calm_customer_down()
+    self.pizza_shop.casher.chef.clean_kitchen()
+    self.pizza_shop.casher.chef.busy
 
-    def order_pizza(self, pizza_type: str):
-
-    def handle_complaint(self, complaint):
-
-    def update_contact_info(self, first_name, last_name, address, phone_number, email):
-
-    def notify_for_promotion(self):
-
-    def apply_loyalty_points(self):
-
-**Justificativa:** A classe concentra responsabilidades relacionadas a pedidos, reclamações, informações pessoais, notificações e benefícios comerciais. Essas funcionalidades representam diferentes motivos para alterações na mesma classe, indicando um possível caso de mudança divergente.
-
-### 9. Primitive Obsession (Obsessão por Primitivos)
-
-**Localização:** Método `handle_complaint()`.
-
-**Trecho:**
-
-    if complaint == "cold pizza":
-        self.complain("Pizza is cold")
-    elif complaint == "late delivery":
-        self.complain("Pizza is late")
-    elif complaint == "wrong order":
-        self.complain("Wrong pizza delivered")
-
-**Justificativa:** O método utiliza valores textuais específicos para representar categorias de reclamação e controlar o comportamento do programa. Essa representação de conceitos do domínio por strings caracteriza o uso de tipos primitivos para representar diferentes situações.
+**Justificativa:** Esses métodos dependem de funcionalidades e informações pertencentes a outros objetos, especialmente `Cashier` e `Chef`, indicando que parte de seu comportamento está fortemente relacionada a responsabilidades externas à classe `Customer`.
 
 ---
 
-## Resumo dos Code Smells
+## Possíveis Code Smells que exigem análise adicional
 
-| Code Smell | Localização |
-|---|---|
-| Data Clumps | `__init__()`, `update_contact_info()` |
-| Temporary Field | `temp_discount_code`, `temp_order_note` |
-| Dead Code | `another_unused_method()`, `yet_another_unused_method()`, `refused_bequest()` |
-| Message Chains | `complain()`, `chain_of_methods()`, `access_internal_details()` |
-| Middle Man | `middle_method()` |
-| Long Parameter List | `order_with_unnecessary_details()` — não confirmado |
-| Duplicated Code | `duplicate_complaint()` |
-| Divergent Change | Classe `Customer` — indício |
-| Primitive Obsession | `handle_complaint()` |
+### 6. Long Parameter List (Lista Longa de Parâmetros)
 
-**Observações:** O método `long_complaint_method()` não é suficientemente extenso ou complexo para confirmar Long Function apenas pelo nome ou pela quantidade de chamadas. Da mesma forma, `refused_bequest()` não comprova Refused Bequest, pois não há herança apresentada. Long Parameter List e Divergent Change não foram confirmados de forma conclusiva e devem ser tratados separadamente dos code smells identificados.
+**Localização:** Método `order_with_unnecessary_details()`.
+
+**Justificativa:** A chamada de `order_pizza()` contém 20 argumentos, dificultando sua compreensão. Entretanto, a assinatura do método aceita apenas um argumento além de `self`, caracterizando também um erro de chamada. Não é possível confirmar o code smell Long Parameter List apenas por essa ocorrência.
+
+### 7. Data Clumps (Agrupamentos de Dados)
+
+**Localização:** Método `update_contact_info()` e atributos de identificação e contato.
+
+**Justificativa:** Os dados de identificação e contato, como nome, sobrenome, endereço, telefone e e-mail, são tratados em conjunto. Isso sugere um agrupamento de informações relacionadas, mas não é suficiente para confirmar o code smell sem identificar agrupamentos recorrentes.
+
+### 8. Speculative Generality (Generalidade Especulativa)
+
+**Localização:** Métodos `another_unused_method()`, `yet_another_unused_method()` e `refused_bequest()`.
+
+**Justificativa:** Esses métodos são declarados sem qualquer implementação ou comportamento efetivo. Sua presença sugere funcionalidades desnecessárias ou previstas para o futuro, mas não é possível confirmar essa intenção apenas pelo código apresentado.
+
+### 9. Long Method (Método Longo)
+
+**Localização:** Método `long_complaint_method()`.
+
+**Justificativa:** O método concentra diversas chamadas relacionadas a reclamações. Entretanto, apresenta poucas linhas e baixa complexidade, tornando discutível sua classificação como Long Method.
+
+---
+
+## Observação
+
+O code smell **Refused Bequest** não foi identificado, pois a classe `Customer` não apresenta herança. A existência de um método chamado `refused_bequest()` não é suficiente para caracterizá-lo.
+
+Os code smells com evidências mais claras são **Large Class, Duplicate Code, Message Chains, Middle Man e Feature Envy**.

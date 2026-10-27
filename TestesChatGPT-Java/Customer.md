@@ -1,149 +1,87 @@
+# Análise de Code Smells — Classe Customer (Java)
 
-# Análise de Code Smells — Classe `Customer`
+### 1. Long Parameter List (Lista Longa de Parâmetros)
 
-### 1. Data Clumps (Agrupamento de Dados)
+- **Localização:** Método `orderWithUnnecessaryDetails()`.
+- **Trecho:**
+  `orderWithUnnecessaryDetails(String pizzaType, String size, String crustType, String toppings, boolean extraCheese, String discountCode)`
+- **Justificativa:** O método recebe seis parâmetros, tornando sua assinatura extensa e aumentando a complexidade de utilização. Além disso, grande parte das informações recebidas é utilizada somente na mensagem impressa, sem participar efetivamente do processamento do pedido.
 
-**Localização:** Atributos `firstName`, `lastName`, `address`, `phoneNumber` e `email`, além do método `updateContactInfo()`.
+### 2. Message Chains (Cadeias de Mensagens)
 
-**Trecho:**
-```java
-private String firstName;
-private String lastName;
-private String address;
-private String phoneNumber;
-private String email;
-```
+- **Localização:** Métodos `chainOfMethods()` e `accessInternalDetails()`.
+- **Trechos:**
+  - `this.pizzaShop.getCashier().getChef().cleanKitchen();`
+  - `pizzaShop.getCashier().getChef().isBusy();`
+- **Justificativa:** Os métodos realizam chamadas encadeadas para acessar objetos internos de outros objetos. A classe `Customer` precisa conhecer a estrutura de relacionamento entre `Shop`, `Cashier` e `Chef`, aumentando o acoplamento entre as classes.
 
-**Justificativa:** Os atributos representam um conjunto de informações relacionadas ao contato do cliente. Esses mesmos dados aparecem agrupados como parâmetros no método `updateContactInfo()`, indicando um agrupamento de dados utilizados em conjunto.
+### 3. Middle Man (Intermediário)
 
-### 2. Temporary Field (Campo Temporário)
+- **Localização:** Método `middleMethod()`.
+- **Trecho:** `this.realMethod();`
+- **Justificativa:** O método atua como intermediário entre `middlemanMethod()` e `realMethod()`, delegando a execução principal para outro método. Embora imprima uma mensagem, não acrescenta processamento relevante ao comportamento delegado.
 
-**Localização:** Atributos `tempDiscountCode` e `tempOrderNote`.
+### 4. Dead Code (Código Morto)
 
-**Trecho:**
-```java
-private String tempDiscountCode;
-private String tempOrderNote;
-```
+- **Localização:** Métodos `anotherUnusedMethod()` e `refusedBequest()`.
+- **Trechos:**
+  - `public void anotherUnusedMethod() {}`
+  - `public void refusedBequest() {}`
+- **Justificativa:** Ambos os métodos possuem corpos vazios, sem implementar qualquer comportamento. São candidatos a código morto, embora não seja possível confirmar que nunca são utilizados sem examinar as demais classes do sistema.
 
-**Justificativa:** Os atributos foram declarados na classe, mas não são utilizados nos métodos apresentados. Seus nomes sugerem que seriam necessários apenas em determinadas situações, embora seu uso temporário não possa ser confirmado pelo código.
+### 5. Duplicate Code (Código Duplicado)
 
-### 3. Dead Code (Código Morto)
+- **Localização:** Método `duplicateComplaint()`.
+- **Trecho:**
+  - `this.complain("Pizza is cold");` — repetido duas vezes.
+  - `this.complain("Pizza is late");` — repetido duas vezes.
+- **Justificativa:** O método contém chamadas idênticas repetidas consecutivamente, resultando em duplicação explícita de instruções que executam exatamente a mesma operação.
 
-**Localização:** Métodos `anotherUnusedMethod()` e `refusedBequest()`, além dos atributos `tempDiscountCode`, `tempOrderNote` e `frequentCustomerDiscount`.
+### 6. Large Class (Classe Grande)
 
-**Trecho:**
-```java
-public void anotherUnusedMethod() {
-}
+- **Localização:** Classe `Customer`.
+- **Trecho:** Conjunto de métodos da classe, especialmente `orderPizza()`, `handleComplaint()`, `notifyForPromotion()`, `applyDiscount()`, `applyLoyaltyPoints()` e `updateContactInfo()`.
+- **Justificativa:** A classe concentra diversas responsabilidades, incluindo pedidos, reclamações, atualização de dados pessoais, notificações e benefícios. Essa diversidade de comportamentos aumenta sua complexidade e dificulta sua manutenção. A quantidade de métodos, isoladamente, não determina o smell; o principal indício é a concentração de responsabilidades distintas.
 
-public void refusedBequest() {
-}
-```
+### 7. Data Clumps (Agrupamentos de Dados)
 
-**Justificativa:** Os métodos possuem corpos vazios e não apresentam comportamento implementado. Além disso, os atributos mencionados não são utilizados de maneira funcional no código apresentado, caracterizando elementos sem contribuição efetiva para o comportamento da classe.
+- **Localização:** Atributos de contato e métodos `updateContactInfo()` e `updateName()`.
+- **Trechos:**
+  - `firstName`
+  - `lastName`
+  - `address`
+  - `phoneNumber`
+  - `email`
+- **Justificativa:** Os dados pessoais e de contato aparecem agrupados tanto nos atributos quanto nos parâmetros do método de atualização. Essa repetição de um conjunto de informações relacionadas caracteriza um indício de Data Clumps.
 
-### 4. Long Parameter List (Lista Longa de Parâmetros)
+### 8. Switch Statements / Repeated Switches (Condicionais por Tipo)
 
-**Localização:** Método `orderWithUnnecessaryDetails()`.
+- **Localização:** Método `handleComplaint()`.
+- **Trecho:** Estrutura `if / else if / else` que verifica os valores `"cold pizza"`, `"late delivery"` e `"wrong order"`.
+- **Justificativa:** O método utiliza uma sequência de condições para determinar o comportamento com base no tipo de reclamação representado por uma string. Entretanto, uma única estrutura condicional não é suficiente para confirmar o smell Repeated Switches descrito por Fowler; seria necessário observar a repetição dessa lógica em diferentes pontos do sistema.
 
-**Trecho:**
-```java
-public void orderWithUnnecessaryDetails(
-    String pizzaType,
-    String size,
-    String crustType,
-    String toppings,
-    boolean extraCheese,
-    String discountCode
-)
-```
+### 9. Temporary Field (Campo Temporário)
 
-**Justificativa:** O método recebe seis parâmetros diferentes para representar os detalhes de um pedido. A quantidade de argumentos aumenta a complexidade de sua utilização. Além disso, apenas `pizzaType` é utilizado na chamada que efetivamente encaminha o pedido.
-
-### 5. Message Chains (Cadeias de Mensagens)
-
-**Localização:** Métodos `chainOfMethods()`, `complain()` e `accessInternalDetails()`.
-
-**Trechos:**
-```java
-this.pizzaShop.getCashier().getChef().cleanKitchen();
-
-this.pizzaShop.getCashier().calmCustomerDown();
-
-pizzaShop.getCashier().getChef().isBusy();
-```
-
-**Justificativa:** Os métodos acessam objetos intermediários por meio de chamadas encadeadas para alcançar funcionalidades de outros objetos. Isso faz com que a classe `Customer` conheça detalhes da estrutura interna de suas dependências, aumentando o acoplamento.
-
-### 6. Middle Man (Intermediário)
-
-**Localização:** Método `middleMethod()`.
-
-**Trecho:**
-```java
-public void middleMethod() {
-    System.out.println("Middleman method delegating to another method");
-    this.realMethod();
-}
-```
-
-**Justificativa:** O método atua principalmente como intermediário entre `middlemanMethod()` e `realMethod()`, encaminhando a execução para outro método sem acrescentar uma operação significativa além da mensagem exibida.
-
-### 7. Duplicated Code (Código Duplicado)
-
-**Localização:** Método `duplicateComplaint()`.
-
-**Trecho:**
-```java
-this.complain("Pizza is cold");
-this.complain("Pizza is cold");
-this.complain("Pizza is late");
-this.complain("Pizza is late");
-```
-
-**Justificativa:** O método apresenta chamadas idênticas repetidas consecutivamente, executando as mesmas operações com os mesmos argumentos. Essa repetição caracteriza duplicação de instruções no código.
-
-### 8. Large Class (Classe Grande)
-
-**Localização:** Classe `Customer`.
-
-**Justificativa:** A classe reúne diversas responsabilidades, incluindo realização de pedidos, reclamações, atualização de informações pessoais, notificações promocionais, aplicação de descontos e gerenciamento de pontos de fidelidade. A concentração dessas funcionalidades indica que a classe acumula diferentes responsabilidades, caracterizando uma classe com escopo excessivamente amplo.
-
-### 9. Feature Envy (Inveja de Funcionalidade)
-
-**Localização:** Métodos `chainOfMethods()` e `accessInternalDetails()`.
-
-**Trechos:**
-```java
-this.pizzaShop.getCashier().getChef().cleanKitchen();
-
-pizzaShop.getCashier().getChef().isBusy();
-```
-
-**Justificativa:** Os métodos dependem de funcionalidades e informações pertencentes a outros objetos, especialmente `Chef`. A classe `Customer` acessa essas funcionalidades por meio de objetos intermediários, demonstrando interesse em comportamentos que não pertencem diretamente à sua responsabilidade.
-
-### 10. Divergent Change (Mudança Divergente)
-
-**Localização:** Classe `Customer`.
-
-**Justificativa:** A classe concentra funcionalidades relacionadas a diferentes áreas do sistema, como pedidos, informações cadastrais, promoções, descontos e reclamações. Dessa forma, alterações em diferentes regras de negócio podem exigir modificações na mesma classe por motivos distintos, indicando múltiplas razões potenciais para mudanças.
+- **Localização:** Atributos `tempDiscountCode` e `tempOrderNote`.
+- **Trechos:**
+  - `private String tempDiscountCode;`
+  - `private String tempOrderNote;`
+- **Justificativa:** Os atributos possuem nomes que indicam armazenamento temporário, mas não são inicializados ou utilizados nos métodos apresentados. Isso sugere a existência de campos sem uma função permanente na classe. A caracterização como Temporary Field, porém, depende de evidências de que sejam utilizados apenas em determinadas circunstâncias.
 
 ---
 
-## Resumo dos Code Smells Identificados
+## Resumo da Análise
 
-| Code Smell | Localização |
-|---|---|
-| Data Clumps | Atributos de contato e `updateContactInfo()` |
-| Temporary Field | `tempDiscountCode`, `tempOrderNote` |
-| Dead Code | Métodos vazios e atributos sem uso funcional |
-| Long Parameter List | `orderWithUnnecessaryDetails()` |
-| Message Chains | `chainOfMethods()`, `complain()`, `accessInternalDetails()` |
-| Middle Man | `middleMethod()` |
-| Duplicated Code | `duplicateComplaint()` |
-| Large Class | Classe `Customer` |
-| Feature Envy | `chainOfMethods()`, `accessInternalDetails()` |
-| Divergent Change | Classe `Customer` |
+| Code Smell | Localização | Avaliação |
+|---|---|---|
+| Long Parameter List | `orderWithUnnecessaryDetails()` | Identificado |
+| Message Chains | `chainOfMethods()`, `accessInternalDetails()` | Identificado |
+| Middle Man | `middleMethod()` | Indício |
+| Dead Code | `anotherUnusedMethod()`, `refusedBequest()` | Indício |
+| Duplicate Code | `duplicateComplaint()` | Identificado |
+| Large Class | Classe `Customer` | Identificado |
+| Data Clumps | Dados de contato | Indício |
+| Repeated Switches | `handleComplaint()` | Não confirmado |
+| Temporary Field | `tempDiscountCode`, `tempOrderNote` | Não confirmado |
 
-**Observação:** A identificação de `Large Class`, `Feature Envy` e `Divergent Change` envolve interpretação das responsabilidades da classe. Já `Dead Code` e `Temporary Field` foram avaliados com base apenas no código apresentado, pois não é possível verificar eventuais utilizações externas dos membros públicos ou confirmar se os campos temporários são usados em outras partes da implementação. Não foram considerados `Primitive Obsession` apenas pela existência de atributos primitivos, `Long Method` apenas pelo número de linhas, nem `Refused Bequest` apenas pelo nome de um método.
+**Observação:** Não foram identificados elementos suficientes para classificar `refusedBequest()` como Refused Bequest, pois esse smell está relacionado a estruturas de herança, inexistentes no código apresentado. Também não há evidências suficientes para afirmar que `longComplaintMethod()` caracteriza Long Method, considerando seu tamanho e sua complexidade relativamente reduzidos.
